@@ -5,7 +5,7 @@ import {
   getBarById,
   deleteBar,
 } from "../controllers/bar_controller";
-import { authMiddleware } from "src/middleware/auth_middleware";
+import { authMiddleware } from "../middleware/auth_middleware";
 
 const barRouter = express.Router();
 

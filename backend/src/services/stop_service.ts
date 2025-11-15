@@ -1,6 +1,6 @@
 import { HydratedDocument, Types } from "mongoose";
-import { GroupModel } from "src/models/group";
-import { StopModel, IStop } from "src/models/stop";
+import { GroupModel } from "../models/group";
+import { StopModel, IStop } from "../models/stop";
 
 export default class StopService {
   public static createStop = async (stopData) => {

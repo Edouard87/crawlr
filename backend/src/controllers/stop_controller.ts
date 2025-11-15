@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
-import { StopModel, IStop } from "src/models/stop";
-import StopService from "src/services/stop_service";
+import StopService from "../services/stop_service";
 
 export const createStop = async (req: Request, res: Response) => {
   try {

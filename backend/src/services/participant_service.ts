@@ -1,9 +1,9 @@
 import { Request, Response, Router } from "express";
 import { ParticipantModel } from "../models/participant";
-import { StopModel } from "src/models/stop";
+import { StopModel } from "../models/stop";
 import { HydratedDocument } from "mongoose";
 import { IEvent } from '../models/event'
-import { GroupModel } from "src/models/group";
+import { GroupModel } from "../models/group";
 
 interface IParticipantData {
     signInCode: string;

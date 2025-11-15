@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import GroupService from "src/services/group_service";
+import GroupService from "../services/group_service";
 
 export const stop = async (req: Request, res: Response) => {
   try {

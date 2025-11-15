@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { UserModel, IUser } from 'src/models/user';
+import { UserModel, IUser } from '../models/user';
 import { HydratedDocument } from 'mongoose';
 
 export default class AuthService {

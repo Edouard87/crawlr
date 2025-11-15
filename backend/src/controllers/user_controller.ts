@@ -20,7 +20,7 @@ export const createUser = async (req: Request, res: Response) => {
   const user = await UserModel.create({
     email,
     phoneNumber,
-    hashedPassword,
+    password: hashedPassword,
     name,
     eventsCreated: [],
   });
@@ -37,7 +37,7 @@ export const createUser = async (req: Request, res: Response) => {
 
 export const getUser = async (req: Request, res: Response) => {
   try {
-  const { id } = req.params;
+  const id = req.params.id;
 
   const user = await UserModel.findById(id).select("-password");
   if (!user) {
@@ -53,7 +53,7 @@ export const getUser = async (req: Request, res: Response) => {
 
 export const updateUser = async (req: Request, res: Response) => {
   try {
-  const { id } = req.params;
+  const id = req.params.id;
   const { name, email, phoneNumber, newPassword, oldPassword } = req.body;
 
   const hashedOldPassword = await bcrypt.hash(oldPassword, 10);
@@ -89,7 +89,7 @@ export const updateUser = async (req: Request, res: Response) => {
 
 export const deleteUser = async (req: Request, res: Response) => {
   try {
-  const { id } = req.params;
+  const id = req.params.id;
 
   const user = await UserModel.findByIdAndDelete(id);
   if (!user) {

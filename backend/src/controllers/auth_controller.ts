@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { IUser } from 'src/models/user';
+import { IUser } from '../models/user';
 import AuthService from '../services/auth_service'
 
 export default class AuthController {
