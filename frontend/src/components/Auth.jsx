@@ -32,7 +32,7 @@ function Auth({ onLogin }) {
       }
       
       // Event code must be exactly 6 alphanumeric characters
-      const eventCodeRegex = /^[A-Za-z0-9]{6}$/
+      const eventCodeRegex = /^[A-Z0-9]{6}$/
       if (!eventCodeRegex.test(eventCode.trim())) {
         alert('Event code must be exactly 6 alphanumeric characters (letters and numbers only)')
         return
