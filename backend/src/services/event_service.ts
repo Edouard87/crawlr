@@ -1,31 +1,30 @@
 import { Request, Response } from "express";
 import { EventModel, IEvent } from "../models/event";
-
-interface IEventData {
-    name: String,
-    participants: string[],
-    coordinators: string[],
-}
+import GroupService from "./group_service";
 
 export default class EventService {
     /**
      * Create a new event and store it in the MongoDB database.
      * Expects a JSON body with event data.
      */
-    public static createEvent = async (eventname: string, creatorID: string) => {
+    public static createEvent = async (eventname: string, numGroups: number, creatorID: string) => {
         if (!creatorID || creatorID.length === 0) {
             throw new Error("Creator ID must be provided to create an event.");
         }
-        const event = new EventModel({
+        const event = await EventModel.create({
             name: eventname,
             createdBy: creatorID,
             participants: [],
             coordinators: [],
+            groups: [],
             stops: [],
             status: "planned"
         });
-        const savedEvent = await event.save();
-        return savedEvent
+
+        const groupIDs = await GroupService.initializeGroups(numGroups, event)
+        event.groups = groupIDs;
+        await event.save();
+        return event;
     };
     
     /**

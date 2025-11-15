@@ -8,7 +8,7 @@ import EventService from "../services/event_service";
  */
 export const createEvent = async (req: Request, res: Response) => {
   try {
-  const savedEvent = await EventService.createEvent(req.body.eventName, req.user!.id);
+  const savedEvent = await EventService.createEvent(req.body.eventName, req.body.numGroups, req.user!.id);
   
   res.status(201).json({
     message: "Event created successfully",

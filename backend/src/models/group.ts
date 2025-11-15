@@ -46,7 +46,6 @@ const GroupSchema = new Schema(
   stop: {
     type: Schema.Types.ObjectId,
     ref: "Stop",
-    required: true,
   },
 
   status: {

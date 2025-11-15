@@ -6,7 +6,7 @@ import {
   deleteEvent,
   //startEvent,
 } from "../controllers/event_controller";
-import { authMiddleware } from "src/middleware/auth_middleware";
+import { authMiddleware } from "../middleware/auth_middleware";
 
 const eventRouter = express.Router();
 

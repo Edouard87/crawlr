@@ -6,6 +6,7 @@ export interface IEvent extends Document {
   coordinatorPassword: string;
   participants: Types.ObjectId[]; // References to Users
   coordinators: Types.ObjectId[];
+  groups: Types.ObjectId[];
   stops: Types.ObjectId[]; // References to Bars, in order
   signInCode: string;
   coordinatorCode: string;
@@ -38,6 +39,13 @@ const EventSchema = new mongoose.Schema(
     {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Participant",
+    }
+  ],
+
+  groups: [
+    {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Group",
     }
   ],
 
