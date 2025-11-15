@@ -1,25 +1,25 @@
 /**
- * Abstraction to connect to the database.
+ * Abstraction to connect to the MongoDB database using Mongoose.
  */
 
-import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import mongoose from "mongoose";
 
-let firebaseConfig = {
-  apiKey: "AIzaSyDj2UEhT_f97CIYsFYtOgPt6zVdpv1kZGc",
-  authDomain: "crawlr-1cbfd.firebaseapp.com",
-  projectId: "crawlr-1cbfd",
-  storageBucket: "crawlr-1cbfd.firebasestorage.app",
-  messagingSenderId: "44421940468",
-  appId: "1:44421940468:web:153771574c4148b76a0aa1",
-  measurementId: "G-HFTLXYEQVJ"
-}
+const MONGO_URI =
+  process.env.MONGO_URI ||
+  "mongodb://user:pass@localhost:27017/crawlr?authSource=admin";
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+mongoose.connect(MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
+// Listen for successful/failed connection (optional/logging purposes)
+mongoose.connection.on("connected", () => {
+  console.log("Mongoose connected to MongoDB");
+});
 
-// Initialize Cloud Firestore and get a reference to the service
-const db = getFirestore(app);
+mongoose.connection.on("error", (err) => {
+  console.error("Mongoose connection error:", err);
+});
 
-export default db;
+export default mongoose;
