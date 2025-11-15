@@ -1,32 +1,44 @@
 /**
- * Firebase Firestore Schema Definitions
- * 
- * This file contains TypeScript interfaces and example data structures
- * for the BarCrawler application's Firestore collections.
+ * MongoDB Mongoose Schema Definitions
+ *
+ * This file contains Mongoose schemas and models
+ * for the BarCrawler application's MongoDB collections.
  */
 
-import { Timestamp } from "firebase/firestore";
+import mongoose, { Schema, Document, Types } from "mongoose";
 
 // ============================================================================
 // User Schema
 // ============================================================================
 
-export interface User {
-  id: string; // Document ID
+export interface IUser extends Document {
   email: string;
   displayName: string;
-  // Role determine what the user can access.
   role: "coordinator" | "participant" | "admin";
-  createdAt: Date | Timestamp;
-  updatedAt: Date | Timestamp;
+  createdAt: Date;
+  updatedAt: Date;
 }
+
+const UserSchema: Schema<IUser> = new Schema<IUser>(
+  {
+    email: { type: String, required: true, unique: true },
+    displayName: { type: String, required: true },
+    role: {
+      type: String,
+      enum: ["coordinator", "participant", "admin"],
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
+
+export const UserModel = mongoose.model<IUser>("User", UserSchema);
 
 // ============================================================================
 // Bar Schema
 // ============================================================================
 
-export interface Bar {
-  id: string; // Document ID
+export interface IBar extends Document {
   name: string;
   address: {
     street: string;
@@ -39,96 +51,138 @@ export interface Bar {
       longitude: number;
     };
   };
-  createdAt: Date | Timestamp;
-  updatedAt: Date | Timestamp;
+  category?: string[];
+  description?: string;
+  rating?: number;
+  priceRange?: number;
+  hours?: {
+    [key: string]: { open: string; close: string };
+  };
+  images?: string[];
+  phoneNumber?: string;
+  website?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-// Example Bar document:
-// {
-//   id: "bar456",
-//   name: "The Craft Cocktail Lounge",
-//   address: {
-//     street: "123 Main St",
-//     city: "San Francisco",
-//     state: "CA",
-//     zipCode: "94102",
-//     country: "USA",
-//     coordinates: {
-//       latitude: 37.7749,
-//       longitude: -122.4194
-//     }
-//   },
-//   category: ["cocktail", "lounge"],
-//   description: "A trendy cocktail bar with craft drinks",
-//   rating: 4.5,
-//   priceRange: 3,
-//   hours: {
-//     monday: { open: "17:00", close: "02:00" },
-//     tuesday: { open: "17:00", close: "02:00" },
-//     wednesday: { open: "17:00", close: "02:00" },
-//     thursday: { open: "17:00", close: "02:00" },
-//     friday: { open: "17:00", close: "02:00" },
-//     saturday: { open: "17:00", close: "02:00" },
-//     sunday: { open: "17:00", close: "02:00" }
-//   },
-//   images: ["https://example.com/bar1.jpg"],
-//   phoneNumber: "+1-555-0123",
-//   website: "https://craftcocktail.com",
-//   createdAt: Timestamp,
-//   updatedAt: Timestamp
-// }
+const BarSchema: Schema<IBar> = new Schema<IBar>(
+  {
+    name: { type: String, required: true },
+    address: {
+      street: { type: String, required: true },
+      city: { type: String, required: true },
+      state: { type: String, required: true },
+      zipCode: { type: String, required: true },
+      country: { type: String, required: true },
+      coordinates: {
+        latitude: { type: Number, required: true },
+        longitude: { type: Number, required: true },
+      },
+    },
+    category: [{ type: String }],
+    description: { type: String },
+    rating: { type: Number },
+    priceRange: { type: Number },
+    hours: {
+      type: Schema.Types.Mixed,
+      default: {},
+    },
+    images: [{ type: String }],
+    phoneNumber: { type: String },
+    website: { type: String },
+  },
+  { timestamps: true }
+);
+
+export const BarModel = mongoose.model<IBar>("Bar", BarSchema);
 
 // ============================================================================
 // Event Schema
 // ============================================================================
 
-export interface Event {
-  id: string; // Document ID
+export interface IEvent extends Document {
   name: string;
   description?: string;
-  createdBy: string; // User ID
-  participants: string[]; // Array of User IDs
-  bars: string[]; // Array of Bar IDs in order
-  startDate: Date | Timestamp;
-  endDate?: Date | Timestamp;
+  createdBy: Types.ObjectId; // Reference to User
+  participants: Types.ObjectId[]; // References to Users
+  bars: Types.ObjectId[]; // References to Bars, in order
+  startDate: Date;
+  endDate?: Date;
   status: "planned" | "active" | "completed" | "cancelled";
-  createdAt: Date | Timestamp;
-  updatedAt: Date | Timestamp;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-// Example Review document:
-// {
-//   id: "review321",
-//   barId: "bar456",
-//   userId: "user123",
-//   rating: 5,
-//   comment: "Amazing cocktails and great atmosphere!",
-//   photos: ["https://example.com/review1.jpg"],
-//   createdAt: Timestamp,
-//   updatedAt: Timestamp
-// }
+const EventSchema: Schema<IEvent> = new Schema<IEvent>(
+  {
+    name: { type: String, required: true },
+    description: { type: String },
+    createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    participants: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    bars: [{ type: Schema.Types.ObjectId, ref: "Bar" }],
+    startDate: { type: Date, required: true },
+    endDate: { type: Date },
+    status: {
+      type: String,
+      enum: ["planned", "active", "completed", "cancelled"],
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
+
+export const EventModel = mongoose.model<IEvent>("Event", EventSchema);
+
+// ============================================================================
+// Review Schema
+// ============================================================================
+
+export interface IReview extends Document {
+  barId: Types.ObjectId;
+  userId: Types.ObjectId;
+  rating: number;
+  comment?: string;
+  photos?: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const ReviewSchema: Schema<IReview> = new Schema<IReview>(
+  {
+    barId: { type: Schema.Types.ObjectId, ref: "Bar", required: true },
+    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    rating: { type: Number, required: true, min: 1, max: 5 },
+    comment: { type: String },
+    photos: [{ type: String }],
+  },
+  { timestamps: true }
+);
+
+export const ReviewModel = mongoose.model<IReview>("Review", ReviewSchema);
 
 // ============================================================================
 // Check-in Schema
 // ============================================================================
 
-export interface CheckIn {
-  id: string; // Document ID
-  userId: string; // Reference to User
-  barId: string; // Reference to Bar
-  crawlId?: string; // Optional reference to Crawl
-  timestamp: Date | Timestamp;
+export interface ICheckIn extends Document {
+  userId: Types.ObjectId; // Reference to User
+  barId: Types.ObjectId; // Reference to Bar
+  crawlId?: Types.ObjectId; // Optional reference to Crawl
+  timestamp: Date;
+  notes?: string;
 }
 
-// Example CheckIn document:
-// {
-//   id: "checkin654",
-//   userId: "user123",
-//   barId: "bar456",
-//   crawlId: "crawl789",
-//   timestamp: Timestamp,
-//   notes: "Great vibes here!"
-// }
+const CheckInSchema: Schema<ICheckIn> = new Schema<ICheckIn>(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    barId: { type: Schema.Types.ObjectId, ref: "Bar", required: true },
+    crawlId: { type: Schema.Types.ObjectId, ref: "Event" },
+    timestamp: { type: Date, default: Date.now },
+    notes: { type: String }
+  }
+);
+
+export const CheckInModel = mongoose.model<ICheckIn>("CheckIn", CheckInSchema);
 
 // ============================================================================
 // Collection Names (for reference)
@@ -137,9 +191,9 @@ export interface CheckIn {
 export const COLLECTIONS = {
   USERS: "users",
   BARS: "bars",
-  CRAWLS: "crawls",
+  CRAWLS: "events", // renamed to events for Mongo
   REVIEWS: "reviews",
-  CHECK_INS: "checkIns",
+  CHECK_INS: "checkins",
 } as const;
 
 // ============================================================================
@@ -147,10 +201,4 @@ export const COLLECTIONS = {
 // ============================================================================
 
 export type CollectionName = typeof COLLECTIONS[keyof typeof COLLECTIONS];
-
-// Type for converting Firestore Timestamps to Date objects
-export type WithDates<T> = Omit<T, "createdAt" | "updatedAt"> & {
-  createdAt: Date;
-  updatedAt: Date;
-};
 
