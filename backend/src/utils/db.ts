@@ -9,7 +9,6 @@ const MONGO_URI =
   "mongodb://user:pass@localhost:27017/crawlr?authSource=admin";
 
 mongoose.connect(MONGO_URI, {
-  useNewUrlParser: true,
   useUnifiedTopology: true,
 });
 

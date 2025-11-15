@@ -9,6 +9,9 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3000
+      - MONGO_URI=mongodb://user:pass@mongodb:27017/crawlr?authSource=admin
+    env_file:
+      - .env
     volumes:
       - ./src:/app/src
       - ./build:/app/build
