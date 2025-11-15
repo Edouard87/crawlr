@@ -52,3 +52,15 @@ export const serveGroup = async (req: Request, res: Response) => {
   return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const vacateGroup = async (req: Request, res: Response) => {
+  try {
+    const stop = await StopService.vacateGroup(req.body.stopID, req.body.groupID);
+  } catch (err) {
+    console.error("Error vacating group:", err);
+    return res.status(500).json({ 
+      message: "Internal server error",
+      err: err,
+    })
+  }
+}

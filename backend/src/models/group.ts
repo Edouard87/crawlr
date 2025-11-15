@@ -1,9 +1,10 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
+import { IEvent } from "./event";
 
 export interface IGroup extends Document {
   number: number;
   name: string;
-  event: Types.ObjectId;
+  event: Types.ObjectId | IEvent;
   stopsVisited: Types.ObjectId[];
   groupMembers: Types.ObjectId[];
   stop: Types.ObjectId;
