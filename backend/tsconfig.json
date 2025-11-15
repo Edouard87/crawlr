@@ -3,7 +3,8 @@
 
   "compilerOptions": {
     "rootDirs": ["./build"],
-    "baseUrl": "./"
+    "baseUrl": "./",
+    "sourceMap": true
   },
 
   "include": ["./src/**/*.d.ts", "./src/**/*.ts"],
