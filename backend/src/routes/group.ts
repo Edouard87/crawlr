@@ -1,6 +1,6 @@
 import express from "express";
 import {
-    stop,
+  stop,
 } from "../controllers/group_controller";
 
 const groupRouter = express.Router();

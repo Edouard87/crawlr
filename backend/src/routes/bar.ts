@@ -1,9 +1,9 @@
 import express from "express";
 import {
-    createBar,
-    updateBar,
-    getBarById,
-    deleteBar,
+  createBar,
+  updateBar,
+  getBarById,
+  deleteBar,
 } from "../controllers/bar_controller";
 import { authMiddleware } from "src/middleware/auth_middleware";
 

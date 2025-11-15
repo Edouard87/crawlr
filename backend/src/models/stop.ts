@@ -10,47 +10,47 @@ export interface IStop extends Document {
 
 const StopSchema = new mongoose.Schema(
   {
-    bar: {
+  bar: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Bar",
+    required: true,
+  },
+
+  event: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Event",
+    required: true,
+  },
+
+  currentGroup: {
+    type: [
+    {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Bar",
-      required: true,
-    },
+      ref: "Group",
+    }
+    ],
+    default: [],
+  },
 
-    event: {
+  waitingGroups: {
+    type: [
+    {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Event",
-      required: true,
-    },
+      ref: "Group",
+    }
+    ],
+    default: [],
+  },
 
-    currentGroup: {
-      type: [
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Group",
-        }
-      ],
-      default: [],
-    },
-
-    waitingGroups: {
-      type: [
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Group",
-        }
-      ],
-      default: [],
-    },
-
-    inTransitGroups: {
-      type: [
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Group",
-        }
-      ],
-      default: [],
-    },
+  inTransitGroups: {
+    type: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Group",
+    }
+    ],
+    default: [],
+  },
   },
   { timestamps: true }
 );

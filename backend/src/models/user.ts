@@ -11,19 +11,19 @@ export interface IUser extends Document {
 
 const UserSchema: Schema<IUser> = new Schema<IUser>(
   {
-    email: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true },
 
-    phoneNumber: { type: String, required: true },
+  phoneNumber: { type: String, required: true },
 
-    name: { type: String, required: true },
+  name: { type: String, required: true },
 
-    eventsCreated: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Event",
-        required: true,
-      }
-    ],
+  eventsCreated: [
+    {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Event",
+    required: true,
+    }
+  ],
   },
   { timestamps: true }
 );

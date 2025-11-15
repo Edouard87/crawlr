@@ -8,18 +8,18 @@ import EventService from "../services/event_service";
  */
 export const createEvent = async (req: Request, res: Response) => {
   try {
-    const savedEvent = EventService.createEvent(req.body)
-    
-    res.status(201).json({
-      message: "Event created successfully",
-      id: savedEvent._id.toString(),
-      event: savedEvent,
-    });
+  const savedEvent = await EventService.createEvent(req.body)
+  
+  res.status(201).json({
+    message: "Event created successfully",
+    id: savedEvent._id.toString(),
+    event: savedEvent,
+  });
   } catch (error: any) {
-    res.status(500).json({
-      message: "Failed to create event",
-      error: error.message,
-    });
+  res.status(500).json({
+    message: "Failed to create event",
+    error: error.message,
+  });
   }
 };
 
@@ -28,13 +28,13 @@ export const createEvent = async (req: Request, res: Response) => {
  */
 export const getEvents = async (req: Request, res: Response) => {
   try {
-    const events = await EventService.getAllEvents();
-    res.json(events);
+  const events = await EventService.getAllEvents();
+  res.json(events);
   } catch (error: any) {
-    res.status(500).json({
-      message: "Failed to get events",
-      error: error.message,
-    });
+  res.status(500).json({
+    message: "Failed to get events",
+    error: error.message,
+  });
   }
 };
 
@@ -44,14 +44,14 @@ export const getEvents = async (req: Request, res: Response) => {
 export const getEventById = async (req: Request, res: Response) => {
   try {
 
-    const event = await EventService.getEventById(req.id)
-    
-    res.json(event);
+  const event = await EventService.getEventById(req.params.stopID)
+  
+  res.json(event);
   } catch (error: any) {
-    res.status(500).json({
-      message: "Failed to get event",
-      error: error.message,
-    });
+  res.status(500).json({
+    message: "Failed to get event",
+    error: error.message,
+  });
   }
 };
 
@@ -60,22 +60,19 @@ export const getEventById = async (req: Request, res: Response) => {
  */
 export const updateEvent = async (req: Request, res: Response) => {
   try {
-    const event = await EventService.updateEvent(req.id, req.body)
-      .populate("createdBy", "displayName email")
-      .populate("participants", "displayName email")
-      .populate("bars", "name address");
-    
-    if (!event) {
-      res.status(404).json({ message: "Event not found" });
-      return;
-    }
-    
-    res.json(event);
+  const event = await EventService.updateEvent(req.params.id, req.body)
+  
+  if (!event) {
+    res.status(404).json({ message: "Event not found" });
+    return;
+  }
+  
+  res.json(event);
   } catch (error: any) {
-    res.status(500).json({
-      message: "Failed to update event",
-      error: error.message,
-    });
+  res.status(500).json({
+    message: "Failed to update event",
+    error: error.message,
+  });
   }
 };
 
@@ -84,18 +81,18 @@ export const updateEvent = async (req: Request, res: Response) => {
  */
 export const deleteEvent = async (req: Request, res: Response) => {
   try {
-    const event = await EventModel.findByIdAndDelete(req.params.id);
-    
-    if (!event) {
-      res.status(404).json({ message: "Event not found" });
-      return;
-    }
-    
-    res.json({ message: "Event deleted successfully" });
+  const event = await EventModel.findByIdAndDelete(req.params.id);
+  
+  if (!event) {
+    res.status(404).json({ message: "Event not found" });
+    return;
+  }
+  
+  res.json({ message: "Event deleted successfully" });
   } catch (error: any) {
-    res.status(500).json({
-      message: "Failed to delete event",
-      error: error.message,
-    });
+  res.status(500).json({
+    message: "Failed to delete event",
+    error: error.message,
+  });
   }
 };

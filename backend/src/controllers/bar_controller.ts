@@ -7,17 +7,17 @@ import BarService from "../services/bar_service"
  */
 export const createBar = async (req: Request, res: Response) => {
   try {
-    const savedBar = await BarService.createBar(req.body)
-    res.status(201).json({
-      message: "Bar created successfully",
-      id: savedBar._id.toString(),
-      bar: savedBar,
-    });
+  const savedBar = await BarService.createBar(req.body)
+  res.status(201).json({
+    message: "Bar created successfully",
+    id: savedBar._id.toString(),
+    bar: savedBar,
+  });
   } catch (error: any) {
-    res.status(500).json({
-      message: "Failed to create bar",
-      error: error.message,
-    });
+  res.status(500).json({
+    message: "Failed to create bar",
+    error: error.message,
+  });
   }
 };
 
@@ -26,13 +26,13 @@ export const createBar = async (req: Request, res: Response) => {
  */
 export const getAllBars = async (req: Request, res: Response) => {
   try {
-    const bars = await BarService.getAllBars();
-    res.status(200).json(bars);
+  const bars = await BarService.getAllBars();
+  res.status(200).json(bars);
   } catch (error: any) {
-    res.status(500).json({
-      message: "Failed to get bars",
-      error: error.message,
-    });
+  res.status(500).json({
+    message: "Failed to get bars",
+    error: error.message,
+  });
   }
 };
 
@@ -41,16 +41,16 @@ export const getAllBars = async (req: Request, res: Response) => {
  */
 export const getBarById = async (req: Request, res: Response) => {
   try {
-    const bar = await BarService.getBarById(req.body.id);
-    if (!bar) {
-      return res.status(404).json({ message: "Bar not found" });
-    }
-    res.status(200).json(bar);
+  const bar = await BarService.getBarById(req.params.stopID);
+  if (!bar) {
+    return res.status(404).json({ message: "Bar not found" });
+  }
+  res.status(200).json(bar);
   } catch (error: any) {
-    res.status(500).json({
-      message: "Failed to get bar",
-      error: error.message,
-    });
+  res.status(500).json({
+    message: "Failed to get bar",
+    error: error.message,
+  });
   }
 };
 
@@ -59,19 +59,19 @@ export const getBarById = async (req: Request, res: Response) => {
  */
 export const updateBar = async (req: Request, res: Response) => {
   try {
-    const updatedBar = await BarService.updateBar(req.params.id, req.body);
-    if (!updatedBar) {
-      return res.status(404).json({ message: "Bar not found" });
-    }
-    res.status(200).json({
-      message: "Bar updated successfully",
-      bar: updatedBar
-    });
+  const updatedBar = await BarService.updateBar(req.params.id, req.body);
+  if (!updatedBar) {
+    return res.status(404).json({ message: "Bar not found" });
+  }
+  res.status(200).json({
+    message: "Bar updated successfully",
+    bar: updatedBar
+  });
   } catch (error: any) {
-    res.status(500).json({
-      message: "Failed to update bar",
-      error: error.message,
-    });
+  res.status(500).json({
+    message: "Failed to update bar",
+    error: error.message,
+  });
   }
 };
 
@@ -80,18 +80,18 @@ export const updateBar = async (req: Request, res: Response) => {
  */
 export const deleteBar = async (req: Request, res: Response) => {
   try {
-    const deletedBar = await BarService.deleteBar(req.params.id);
-    if (!deletedBar) {
-      return res.status(404).json({ message: "Bar not found" });
-    }
-    res.status(200).json({
-      message: "Bar deleted successfully"
-    });
+  const deletedBar = await BarService.deleteBar(req.params.id);
+  if (!deletedBar) {
+    return res.status(404).json({ message: "Bar not found" });
+  }
+  res.status(200).json({
+    message: "Bar deleted successfully"
+  });
   } catch (error: any) {
-    res.status(500).json({
-      message: "Failed to delete bar",
-      error: error.message,
-    });
+  res.status(500).json({
+    message: "Failed to delete bar",
+    error: error.message,
+  });
   }
 };
 

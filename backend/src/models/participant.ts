@@ -4,42 +4,42 @@ export interface IParticipant extends Document {
   name: string,
   phoneNumber: string,
   group: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Group",
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "Group",
   },
   isCoordinator: boolean,
   stopAssigned: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Stop"
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "Stop"
   }
 }
 
 const ParticipantSchema = new mongoose.Schema(
   {
-    name: { 
-      type: String, 
-      required: true 
-    },
+  name: { 
+    type: String, 
+    required: true 
+  },
 
-    phoneNumber: { 
-      type: String, 
-      required: true 
-    },
+  phoneNumber: { 
+    type: String, 
+    required: true 
+  },
 
-    group: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Group"
-    },
+  group: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Group"
+  },
 
-    isCoordinator: { 
-      type: Boolean, 
-      required: true 
-    },
+  isCoordinator: { 
+    type: Boolean, 
+    required: true 
+  },
 
-    stopAssigned: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Stop"
-    }
+  stopAssigned: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Stop"
+  }
   },
   { timestamps: true }
 );

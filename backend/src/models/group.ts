@@ -13,52 +13,52 @@ export interface IGroup extends Document {
 
 const GroupSchema = new Schema(
   {
-    number: {
-      type: Number,
-      required: true,
-    },
+  number: {
+    type: Number,
+    required: true,
+  },
 
-    name: {
-      type: String,
-      required: true,
-    },
+  name: {
+    type: String,
+    required: true,
+  },
 
-    event: {
-      type: Schema.Types.ObjectId,
-      ref: "Event",
-      required: true,
-    },
+  event: {
+    type: Schema.Types.ObjectId,
+    ref: "Event",
+    required: true,
+  },
 
-    stopsVisited: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Stop",
-      }
-    ],
+  stopsVisited: [
+    {
+    type: Schema.Types.ObjectId,
+    ref: "Stop",
+    }
+  ],
 
-    groupMembers: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Participant",
-      }
-    ],
+  groupMembers: [
+    {
+    type: Schema.Types.ObjectId,
+    ref: "Participant",
+    }
+  ],
 
-    stop: {
-      type: Schema.Types.ObjectId,
-      ref: "Stop",
-      required: true,
-    },
+  stop: {
+    type: Schema.Types.ObjectId,
+    ref: "Stop",
+    required: true,
+  },
 
-    status: {
-      type: String,
-      enum: ["bar", "transit", "waiting", "limbo"],
-      required: true,
-    },
+  status: {
+    type: String,
+    enum: ["bar", "transit", "waiting", "limbo"],
+    required: true,
+  },
 
-    lastStatusUpdate: {
-      type: Date,
-      required: true,
-    },
+  lastStatusUpdate: {
+    type: Date,
+    required: true,
+  },
   },
   { timestamps: true }
 );

@@ -1,10 +1,10 @@
 import {Router} from 'express'
 
 import {
-    createParticipant,
-    getParticipantById,
-    updateParticipant,
-    deleteParticipant
+  createParticipant,
+  getParticipantById,
+  updateParticipant,
+  deleteParticipant
 } from "../controllers/participant_controller";
 
 const router = Router();

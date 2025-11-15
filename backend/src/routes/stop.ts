@@ -1,9 +1,9 @@
 import express from "express";
 import {
-    createStop,
-    deleteStop,
-    addGroup,
-    vacateGroup,
+  createStop,
+  deleteStop,
+  addGroup,
+  vacateGroup,
 } from "../controllers/stop_controller";
 
 const stopRouter = express.Router();
