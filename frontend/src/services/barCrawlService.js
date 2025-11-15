@@ -12,31 +12,6 @@ function getDefaultData() {
   }
 }
 
-// Get all data from storage
-export function getData() {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) {
-      return JSON.parse(stored)
-    }
-  } catch (error) {
-    console.error('Error reading data:', error)
-  }
-  return getDefaultData()
-}
-
-// Save data to storage
-export function saveData(data) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      ...data,
-      lastUpdate: Date.now()
-    }))
-  } catch (error) {
-    console.error('Error saving data:', error)
-  }
-}
-
 // Bar management
 export function getBars() {
   const data = getData()

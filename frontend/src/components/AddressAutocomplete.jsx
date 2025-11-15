@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import './AddressAutocomplete.css'
 
+const API_URL = import.meta.env.VITE_API_URL
+
 function AddressAutocomplete({ value, onChange, placeholder, apiKey, required, id }) {
   const [suggestions, setSuggestions] = useState([])
   const [showSuggestions, setShowSuggestions] = useState(false)

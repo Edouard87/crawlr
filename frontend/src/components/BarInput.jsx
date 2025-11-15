@@ -12,12 +12,10 @@ function BarInput({ onAddBar, apiKey }) {
     if (name.trim() && address.trim()) {
       onAddBar({
         name: name.trim(),
-        address: address.trim(),
-        capacity: parseInt(capacity) || 50
+        address: address.trim()
       })
       setName('')
       setAddress('')
-      setCapacity(50)
     }
   }
 
@@ -53,18 +51,6 @@ function BarInput({ onAddBar, apiKey }) {
               <>Using OpenStreetMap - postal codes may be approximate</>
             )}
           </small>
-        </div>
-        <div className="form-group">
-          <label htmlFor="bar-capacity">Capacity (max attendees)</label>
-          <input
-            id="bar-capacity"
-            type="number"
-            value={capacity}
-            onChange={(e) => setCapacity(e.target.value)}
-            placeholder="50"
-            min="1"
-            required
-          />
         </div>
         <button type="submit" className="add-btn">
           Add Bar

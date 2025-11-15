@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import BarSelectionList from './BarSelectionList'
 import './Auth.css'
+import axios from 'axios'
+import { useCookies } from 'react-cookie'
+import Alert from '@mui/material/Alert';
+
+const API_URL = import.meta.env.VITE_API_URL
 
 function Auth({ onLogin }) {
   const [username, setUsername] = useState('')
@@ -10,20 +15,34 @@ function Auth({ onLogin }) {
   const [isAdmin, setIsAdmin] = useState(false)
   const [showGroupSelection, setShowGroupSelection] = useState(false)
   const [selectedGroup, setSelectedGroup] = useState(null)
+  const [selectedGroupId, setSelectedGroupId] = useState("");
+  const [invalidEventCode, setInvalidEventCode] = useState(false)
+  const [groups, setGroups] = useState([])
   const [showCoordinatorPrompt, setShowCoordinatorPrompt] = useState(false)
   const [coordinatorCode, setCoordinatorCode] = useState('')
   const [showBarSelection, setShowBarSelection] = useState(false)
+  const [invalidAdminCredentials, setInvalidAdminCredentials] = useState(false)
+
+  const [cookies, setCookie, removeCookie] = useCookies(['authCode', 'token'], {
+    doNotParse: true,
+  });
 
   const handleUsernameSubmit = (e) => {
     e.preventDefault()
     
     if (isAdmin) {
-      // Admin login - check credentials (no event code required)
-      if (username === 'admin' && password === 'admin') {
-        onLogin({ role: 'admin', username })
-      } else {
-        alert('Invalid admin credentials. Use: admin/admin')
-      }
+      axios.post(`${API_URL}/auth/login`, {
+        email: username.trim(),
+        password: password.trim()
+      }).then(res => {
+        setCookie('token', res.data, { path: '/' });
+        onLogin({ role: 'admin', username });
+      }).catch(err => {
+        if (err.response.status === 401) {
+          // Error message for invalid admin credentials.
+          setInvalidAdminCredentials(true)
+        }
+      })
     } else {
       // Participant login - validate event code (required)
       if (!eventCode.trim()) {
@@ -47,7 +66,15 @@ function Auth({ onLogin }) {
           return
         }
       }
-      setShowGroupSelection(true)
+
+      axios.post(`${API_URL}/event/join/${eventCode.trim().toUpperCase()}`).then(res => {
+        setGroups(res.data)
+        setShowGroupSelection(true)
+      }).catch(err => {
+        if (err.response.status === 404) {
+          setInvalidEventCode(true)
+        }
+      })
     }
   }
 
@@ -142,6 +169,29 @@ function Auth({ onLogin }) {
     )
   }
 
+  let handleResetEventCode = () => {
+    setInvalidEventCode(false)
+    setEventCode('')
+  }
+
+  if (invalidEventCode) {
+    return (
+      <div className="auth-container">
+        <div className="auth-card">
+          <h1>Invalid Event Code</h1>
+          <p className="auth-subtitle">Ask your coordinator for another code.</p>
+
+          <button 
+            type="button" 
+            className="back-button"
+            onClick={handleResetEventCode}>
+            ← Back
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   // Show coordinator code prompt
   if (showCoordinatorPrompt && !isAdmin) {
     return (
@@ -214,16 +264,16 @@ function Auth({ onLogin }) {
           )}
           
           <div className="group-selection">
-            <p className="group-instruction">Choose your group number (1-20):</p>
+            <p className="group-instruction">Choose your group number:</p>
             <div className="group-grid">
-              {Array.from({ length: 20 }, (_, i) => i + 1).map((groupNum) => (
+              {groups.map(({_id, number}) => (
                 <button
-                  key={groupNum}
+                  key={_id}
                   type="button"
-                  className={`group-button ${selectedGroup === groupNum ? 'selected' : ''}`}
-                  onClick={() => handleGroupSelect(groupNum)}
+                  className={`group-button ${selectedGroup === _id ? 'selected' : ''}`}
+                  onClick={() => handleGroupSelect(number)}
                 >
-                  {groupNum}
+                  {number}
                 </button>
               ))}
             </div>

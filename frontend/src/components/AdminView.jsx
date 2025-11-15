@@ -3,97 +3,186 @@ import BarInput from './BarInput'
 import RouteMap from './RouteMap'
 import RouteList from './RouteList'
 import ApiKeyInput from './ApiKeyInput'
-import { getBars, addBar, removeBar, updateBar, getBarAttendeeCounts, getBarWaitingList } from '../services/barCrawlService'
 import { optimizeRoute } from '../utils/routeOptimizer'
-import { getAllEvents, createEvent, startEvent, getActiveEvent } from '../services/eventService'
 import './AdminView.css'
+import axios from 'axios'
+import { useCookies } from 'react-cookie'
+import BarList from './BarList'
+
+const API_URL = import.meta.env.VITE_API_URL
 
 function AdminView({ user, apiKey, onLogout, onApiKeyChange }) {
   const [view, setView] = useState('selection') // 'selection', 'new', 'existing', 'active'
   const [bars, setBars] = useState([])
+  const [events, setEvents] = useState([])
+  const [stops, setStops] = useState([])
+  const [barStopIDs, setBarStopIDs] = useState([])
   const [optimizedRoute, setOptimizedRoute] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [loadingMessage, setLoadingMessage] = useState('')
   const [attendeeCounts, setAttendeeCounts] = useState({})
-  const [events, setEvents] = useState([])
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [showStartConfirm, setShowStartConfirm] = useState(false)
   const [eventCode, setEventCode] = useState(null)
   const [eventCodeType, setEventCodeType] = useState(null) // 'created' or 'started'
   const [eventName, setEventName] = useState('')
 
+  const [cookies, setCookie, removeCookie] = useCookies(['authCode', 'token'], {
+  doNotParse: true,
+});
+
   useEffect(() => {
     loadEvents()
-    const activeEvent = getActiveEvent()
-    if (activeEvent) {
-      setView('active')
-      loadEventData(activeEvent)
-    }
+    // const activeEvent = getActiveEvent()
+    // if (activeEvent) {
+    //   setView('active')
+    //   loadEventData(activeEvent)
+    // }
   }, [])
 
   useEffect(() => {
     if (view === 'active' || view === 'new') {
       loadBars()
-      loadAttendeeCounts()
       // Refresh attendee counts and waiting lists every 5 seconds
       const interval = setInterval(() => {
         loadBars()
-        loadAttendeeCounts()
       }, 5000)
       return () => clearInterval(interval)
     }
   }, [view])
 
   const loadEvents = () => {
-    const allEvents = getAllEvents()
-    setEvents(allEvents)
+    axios({
+      url: `${API_URL}/event`,
+      method: 'get',
+      headers: {
+        authorization: `Bearer ${cookies.token}`
+      }
+    }).then(res => {
+      setEvents(res.data)
+    }).then(err => {
+      // TODO: Better error handling.
+    })
   }
 
-  const loadEventData = (event) => {
-    if (event && event.bars) {
-      setBars(event.bars)
-      setOptimizedRoute(event.route)
-    }
-  }
+  // const loadEventData = (event) => {
+  //   if (event && event.bars) {
+  //     setBars(event.bars)
+  //     setOptimizedRoute(event.route)
+  //   }
+  // }
 
+  // Get all bars from the DB. 
   const loadBars = () => {
-    const loadedBars = getBars()
-    const barsWithWaitingLists = loadedBars.map(bar => ({
-      ...bar,
-      waitingList: getBarWaitingList(bar.id)
-    }))
-    setBars(barsWithWaitingLists)
-  }
-
-  const loadAttendeeCounts = () => {
-    const counts = getBarAttendeeCounts()
-    setAttendeeCounts(counts)
-    setBars(prevBars => 
-      prevBars.map(bar => ({
-        ...bar,
-        currentAttendees: counts[bar.id] || 0,
-        waitingList: getBarWaitingList(bar.id)
-      }))
-    )
+    axios.get(`${API_URL}/bar`).then(res => {
+      setBars(res.data)
+    }).catch(err => {
+      // TODO: Error on network timeout.
+    })
   }
 
   const handleAddBar = async (bar) => {
-    const newBar = addBar(bar)
-    setBars([...bars, newBar])
-    
+    // This bar does not exist yet in the system. We are creating it now.
+
+    let coords = []
+
     try {
-      const coords = await geocodeAddress(bar.address)
-      updateBar(newBar.id, { coordinates: coords })
-      loadBars()
+      coords = await geocodeAddress(bar.address)
     } catch (error) {
       console.error('Error geocoding address:', error)
+    }
+
+    const newBar = {
+      name: bar.name,
+      address: bar.address,
+      coordinates: {
+        latitude: coords[0],
+        longitude: coords[1]
+      }
+    }
+    
+    try {
+      const response = await axios.post(
+        `${API_URL}/bar`,
+        newBar,
+        {
+          headers: {
+            'authorization': `Bearer ${cookies.token}`
+          }
+        }
+      )
+      loadBars()
+    } catch (error) {
+      console.error('Error adding bar:', error)
+      alert('Error adding bar. Please try again.')
     }
   }
 
   const handleRemoveBar = (id) => {
-    removeBar(id)
-    setBars(bars.filter(bar => bar.id !== id))
+    axios.delete(`${API_URL}/bar/${id}`, {
+      headers: {
+        'authorization': `Bearer ${cookies.token}`
+      }
+    }).then(res => {
+      loadBars()
+    }).catch(err => {
+      // TODO: Better error handling.
+    })
     setOptimizedRoute(null)
+  }
+
+  const handleAddStop = (barID) => {
+    let newStop = bars.find(bar => bar._id === barID)
+    setBarStopIDs([...barStopIDs, barID]);
+    setStops( // Replace the state
+      [ // with a new array
+        ...stops, // that contains all the old items
+        newStop // and one new item at the end
+      ]
+    );
+  }
+
+  const handleRemoveStop = (barID) => {
+    let newStops = stops.filter(bar => bar._id !== barID)
+    setStops(newStops)
+    let newBarStopIDs = barStopIDs.filter(id => id !== barID)
+    setBarStopIDs(newBarStopIDs)
+  }
+
+  const createNewEvent = () => {
+    if (stops.length === 0) {
+      // TODO: Error handling
+    }
+    axios({
+      method: 'post',
+      headers: {
+        'Authorization': `Bearer ${cookies.token}`
+      },
+      url: `${API_URL}/event`,
+      data: {
+        eventName: eventName,
+        numGroups: 20, // TODO: This should be modifiable
+      }
+    }).then(res => {
+      // Add stops to the event.
+      axios({
+        url: `${API_URL}/event/${res.data.id}`,
+        headers: {
+          'Authorization': `Bearer ${cookies.token}`
+        },
+        method: 'put',
+        data: {
+          stops: barStopIDs
+        }
+      }).then(res => {
+        setView('existing')
+        loadEvents()
+      }).catch(err => {
+        // TODO: More error handling
+      })
+    }).catch(err => {
+      // TODO: ERROR Handling
+    })
   }
 
   const handleOptimizeRoute = async () => {
@@ -159,11 +248,11 @@ function AdminView({ user, apiKey, onLogout, onApiKeyChange }) {
     
     const startedEvent = startEvent(selectedEvent.id)
     if (startedEvent) {
-      setEventCode(startedEvent.code)
-      setEventCodeType('started')
-      setView('active')
-      loadEventData(startedEvent)
-      loadEvents()
+      // setEventCode(startedEvent.code)
+      // setEventCodeType('started')
+      // setView('active')
+      // loadEventData(startedEvent)
+      // loadEvents()
     }
     setShowStartConfirm(false)
     setSelectedEvent(null)
@@ -261,7 +350,10 @@ function AdminView({ user, apiKey, onLogout, onApiKeyChange }) {
                       <div className="event-info">
                         <p><strong>Event Code:</strong> {event.code}</p>
                         {event.coordinatorCode && (
-                          <p><strong>Coordinator Code:</strong> <span className="coordinator-code-display">{event.coordinatorCode}</span></p>
+                          <>
+                            <p><strong>Coordinator Code:</strong> <span className="coordinator-code-display">{event.coordinatorCode}</span></p>
+                            <p><strong>Sign In Code:</strong> <span className="coordinator-code-display">{event.signInCode}</span></p>
+                          </>
                         )}
                         <p><strong>Bars:</strong> {event.bars?.length || 0}</p>
                         <p><strong>Created:</strong> {new Date(event.createdAt).toLocaleDateString()}</p>
@@ -269,14 +361,14 @@ function AdminView({ user, apiKey, onLogout, onApiKeyChange }) {
                           <p><strong>Started:</strong> {new Date(event.startedAt).toLocaleDateString()}</p>
                         )}
                       </div>
-                      {!event.isActive && (
+                      {/* {!event.isActive && (
                         <button 
                           className="start-event-btn"
                           onClick={() => handleSelectEvent(event)}
                         >
                           Start Event
                         </button>
-                      )}
+                      )} */}
                       {event.isActive && (
                         <button 
                           className="view-event-btn"
@@ -404,7 +496,7 @@ function AdminView({ user, apiKey, onLogout, onApiKeyChange }) {
           <ApiKeyInput onApiKeyChange={onApiKeyChange} />
           {view === 'new' && (
             <div className="form-group">
-              <label htmlFor="eventName">Event Name (Optional)</label>
+              <label htmlFor="eventName">Event Name</label>
               <input
                 id="eventName"
                 type="text"
@@ -416,59 +508,10 @@ function AdminView({ user, apiKey, onLogout, onApiKeyChange }) {
           )}
           <BarInput onAddBar={handleAddBar} apiKey={apiKey} />
           
-          {bars.length > 0 && (
-            <div className="bars-list">
-              <h2>Bars ({bars.length})</h2>
-              <div className="bars-list-content">
-                {bars.map((bar, index) => (
-                  <div key={bar.id} className="bar-item">
-                    <span className="bar-number">{index + 1}</span>
-                    <div className="bar-info">
-                      <strong>{bar.name}</strong>
-                      <span className="bar-address">{bar.address}</span>
-                      <div className="bar-capacity-info">
-                        <span className="capacity-label">Capacity:</span>
-                        <span className={`capacity-value ${(bar.currentAttendees || 0) >= bar.capacity ? 'full' : ''}`}>
-                          {bar.currentAttendees || 0} / {bar.capacity}
-                        </span>
-                      </div>
-                      {bar.waitingList && bar.waitingList.length > 0 && (
-                        <div className="bar-waiting-list">
-                          <span className="waiting-label">⏳ Waiting:</span>
-                          <span className="waiting-groups">
-                            Groups {bar.waitingList.sort((a, b) => a - b).join(', ')} ({bar.waitingList.length} group{bar.waitingList.length !== 1 ? 's' : ''})
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <button 
-                      className="remove-btn"
-                      onClick={() => handleRemoveBar(bar.id)}
-                      aria-label="Remove bar"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="action-buttons">
-                <button 
-                  className="optimize-btn"
-                  onClick={handleOptimizeRoute}
-                  disabled={isLoading || bars.length < 2}
-                >
-                  {isLoading ? (loadingMessage || 'Optimizing...') : 'Find Best Route'}
-                </button>
-                <button 
-                  className="clear-btn"
-                  onClick={handleClearAll}
-                >
-                  Clear All
-                </button>
-              </div>
-            </div>
-          )}
+          <BarList title="All bars" 
+            bars={bars.filter(bar => !barStopIDs.includes(bar._id))}
+            handleRemoveButton={handleRemoveBar}
+            handleAddButton={handleAddStop} />
 
           {optimizedRoute && (
             <>
@@ -485,8 +528,17 @@ function AdminView({ user, apiKey, onLogout, onApiKeyChange }) {
           )}
         </div>
 
+        <div className="sidebar">
+          <BarList title="Selected Bars"
+          bars={stops}
+          handleRemoveButton={handleRemoveStop}
+          submitButton={createNewEvent}
+          buttonText="Create Event"
+          ></BarList>
+        </div>
+
         <div className="map-container">
-          <RouteMap bars={bars} route={optimizedRoute} apiKey={apiKey} />
+          {/* <RouteMap bars={bars} route={optimizedRoute} apiKey={apiKey} /> */}
         </div>
       </div>
     </div>
@@ -494,6 +546,7 @@ function AdminView({ user, apiKey, onLogout, onApiKeyChange }) {
 }
 
 // Geocode address to coordinates using Nominatim (OpenStreetMap)
+// Returns [lat, long]
 async function geocodeAddress(address) {
   try {
     const response = await fetch(

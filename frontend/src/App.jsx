@@ -4,39 +4,49 @@ import ParticipantView from './components/ParticipantView'
 import AdminView from './components/AdminView'
 import CoordinatorView from './components/CoordinatorView'
 import ErrorBoundary from './components/ErrorBoundary'
+import { useCookies } from 'react-cookie';
 import './App.css'
+import axios from 'axios'
+
+const API_URL = import.meta.env.VITE_API_URL
 
 function App() {
   const [user, setUser] = useState(null)
   const [apiKey, setApiKey] = useState(() => {
     return localStorage.getItem('google_maps_api_key') || ''
   })
+  const [cookies, setCookie, removeCookie] = useCookies(['authCode', 'token'], {
+    doNotParse: true,
+  });
 
   useEffect(() => {
+    //console.log(cookies.token)
     // Check if user is already logged in
-    const savedUser = localStorage.getItem('bar_crawl_user')
-    if (savedUser) {
-      try {
-        const parsedUser = JSON.parse(savedUser)
-        // Ensure isCoordinator is explicitly set for participants
-        if (parsedUser.role === 'participant' && parsedUser.isCoordinator === undefined) {
-          parsedUser.isCoordinator = false
+    if (cookies.token) {
+      // The user has a token.
+      axios.get(`${API_URL}/auth/verify`, {
+        headers: {
+          'authorization': `Bearer ${cookies.token}`
         }
-        setUser(parsedUser)
-      } catch (error) {
-        console.error('Error parsing saved user:', error)
-      }
+      }).then(res => {
+        setUser({ role: 'admin', username: res.data.name });
+      }).catch(err => {
+        console.log(err)
+        if (err.response.status === 401) {
+          // Token is invalid, logout.
+          handleLogout()
+        }
+      })
     }
   }, [])
 
   const handleLogin = (userData) => {
     setUser(userData)
-    localStorage.setItem('bar_crawl_user', JSON.stringify(userData))
   }
 
   const handleLogout = () => {
     setUser(null)
-    localStorage.removeItem('bar_crawl_user')
+    removeCookie('token', { path: '/' });
   }
 
   if (!user) {
