@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { CheckInModel, ICheckIn } from "../models/schema";
+import { CheckInModel, ICheckIn } from "../models/user";
 
 /**
  * Create a new check-in
