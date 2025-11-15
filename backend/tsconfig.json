@@ -1,11 +1,12 @@
 {
-    "extends": "./tsconfig.base.json",
+  "extends": "./tsconfig.base.json",
 
-    "compilerOptions": {
-        "rootDirs": ["./build"],
-        "baseUrl": "./"
-    },
+  "compilerOptions": {
+    "rootDirs": ["./build"],
+    "baseUrl": "./",
+    "sourceMap": true
+  },
 
-    "include": ["./src/**/*.d.ts", "./src/**/*.ts"],
-    "exclude": ["node_modules/**/*", "dist", "build", "tests"]
+  "include": ["./src/**/*.d.ts", "./src/**/*.ts"],
+  "exclude": ["node_modules/**/*", "dist", "build", "tests"]
 }

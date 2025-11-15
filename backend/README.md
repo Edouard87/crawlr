@@ -10,12 +10,12 @@ Scaffold project for Typescript projects, with Unit Tests and basic dependencies
 4. Scaffold for Main Program App (inspired by .net's Main program) for quick testing and running through command line (e.g: $ node build/Main.js)
 5. Scaffold for global extensions
 6. VSCode pre-made debugger settings:
-    1. Node attach
-    2. Launch & debug current opened file
-    3. Debug current Jest test file
-7. Opinionated TSConfig targeting ES6 to get you going quickly
-8. Build & watch yarn/npm commands
-9. Prettier
+7. Node attach
+8. Launch & debug current opened file
+9. Debug current Jest test file
+10. Opinionated TSConfig targeting ES6 to get you going quickly
+11. Build & watch yarn/npm commands
+12. Prettier
 
 ## Develop:
 
@@ -26,10 +26,10 @@ Scaffold project for Typescript projects, with Unit Tests and basic dependencies
 \* If you use this as scaffold for NPM package - make sure to add your NPM token in Github Secrets and change Github Actions config file with your github info: [.github/workflows/nodejs.yml](./.github/workflows/nodejs.yml#L36)
 
 #### Interact with npm binary:
-Run `yarn link` to make the command set up in `package.json` be available as symlink, and execute: 
-> `$ my-command`  
 
+Run `yarn link` to make the command set up in `package.json` be available as symlink, and execute:
 
+> `$ my-command`
 
 ### Build:
 
