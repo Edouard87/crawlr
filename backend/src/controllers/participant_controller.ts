@@ -16,12 +16,20 @@ export const createParticipant = async (req: Request, res: Response) => {
   }
 };
 
-// Get participant by event
-export const getParticipantsByGroup = async (_req: Request, res: Response) => {
+// Verify join password and create coord
+export const createCoord = async (req: Request, res: Response) => {
   try {
-  const participants = await ParticipantModel.find()
-    .populate("group")
-    .populate("stopAssigned");
+    let coord = ParticipantService.createCoord(req.body.data);
+    res.json(coord).status(200);
+  } catch(err) {
+    res.status(400);
+  }
+}
+
+// Get participant by event
+export const getParticipantsByGroup = async (req: Request, res: Response) => {
+  try {
+  const participants = ParticipantService.getParticipantById(req.params.id);
 
   return res.status(200).json(participants);
   } catch (err) {
@@ -35,13 +43,7 @@ export const getParticipantById = async (req: Request, res: Response) => {
   try {
   const { id } = req.params;
 
-  const participant = await ParticipantModel.findById(id)
-    .populate("group")
-    .populate("stopAssigned");
-
-  if (!participant) {
-    return res.status(404).json({ message: "Participant not found" });
-  }
+  const participant = await ParticipantService.getParticipantById(req.params.id)
 
   return res.status(200).json(participant);
   } catch (err) {
@@ -53,26 +55,8 @@ export const getParticipantById = async (req: Request, res: Response) => {
 // UPDATE  (PUT/PATCH /participants/:id)
 export const updateParticipant = async (req: Request, res: Response) => {
   try {
-  const { id } = req.params;
-  const { name, phoneNumber, group, isCoordinator, stopAssigned } = req.body;
 
-  const update: any = {};
-  if (name !== undefined) update.name = name;
-  if (phoneNumber !== undefined) update.phoneNumber = phoneNumber;
-  if (group !== undefined) update.group = group;
-  if (typeof isCoordinator === "boolean") update.isCoordinator = isCoordinator;
-  if (stopAssigned !== undefined) update.stopAssigned = stopAssigned;
-
-  const participant = await ParticipantModel.findByIdAndUpdate(id, update, {
-    new: true,
-    runValidators: true,
-  })
-    .populate("group")
-    .populate("stopAssigned");
-
-  if (!participant) {
-    return res.status(404).json({ message: "Participant not found" });
-  }
+  const participant = ParticipantService.updateParticipant(req.params.id, req.body)
 
   return res.status(200).json(participant);
   } catch (err) {
@@ -84,12 +68,8 @@ export const updateParticipant = async (req: Request, res: Response) => {
 // DELETE  (DELETE /participants/:id)
 export const deleteParticipant = async (req: Request, res: Response) => {
   try {
-  const { id } = req.params;
 
-  const participant = await ParticipantModel.findByIdAndDelete(id);
-  if (!participant) {
-    return res.status(404).json({ message: "Participant not found" });
-  }
+  const participant = await ParticipantService.deleteParticipant(req.params.id)
 
   return res.status(204).send();
   } catch (err) {
@@ -97,6 +77,4 @@ export const deleteParticipant = async (req: Request, res: Response) => {
   return res.status(500).json({ message: "Internal server error" });
   }
 };
-
-// Optional router for convenience
 
