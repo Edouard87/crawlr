@@ -21,6 +21,7 @@ function AdminView({ user, apiKey, onLogout, onApiKeyChange }) {
   const [eventCode, setEventCode] = useState(null)
   const [eventCodeType, setEventCodeType] = useState(null) // 'created' or 'started'
   const [eventName, setEventName] = useState('')
+  const [activeEventInfo, setActiveEventInfo] = useState(null) // Store active event details
 
   useEffect(() => {
     loadEvents()
@@ -28,6 +29,8 @@ function AdminView({ user, apiKey, onLogout, onApiKeyChange }) {
     if (activeEvent) {
       setView('active')
       loadEventData(activeEvent)
+      setActiveEventInfo(activeEvent)
+      setEventCode(activeEvent.code)
     }
   }, [])
 
@@ -163,6 +166,7 @@ function AdminView({ user, apiKey, onLogout, onApiKeyChange }) {
       setEventCodeType('started')
       setView('active')
       loadEventData(startedEvent)
+      setActiveEventInfo(startedEvent)
       loadEvents()
     }
     setShowStartConfirm(false)
@@ -283,6 +287,8 @@ function AdminView({ user, apiKey, onLogout, onApiKeyChange }) {
                           onClick={() => {
                             setView('active')
                             loadEventData(event)
+                            setActiveEventInfo(event)
+                            setEventCode(event.code)
                           }}
                         >
                           View Active Event
@@ -369,13 +375,30 @@ function AdminView({ user, apiKey, onLogout, onApiKeyChange }) {
     <div className="app">
       <header className="app-header">
         <div className="header-content">
-          <div>
+          <div className="header-left">
             <h1>🍺 Bar Crawl Admin</h1>
             <p>{view === 'new' ? 'Create New Event' : 'Active Event Management'}</p>
-            {view === 'active' && eventCode && (
-              <p className="active-event-code">Event Code: <strong>{eventCode}</strong></p>
-            )}
           </div>
+          {view === 'active' && activeEventInfo && (
+            <div className="header-center">
+              <div className="active-event-info-inline">
+                <div className="active-event-info-item-inline">
+                  <span className="info-label-inline">Event:</span>
+                  <span className="info-value-inline">{activeEventInfo.name}</span>
+                </div>
+                <div className="active-event-info-item-inline">
+                  <span className="info-label-inline">Join Code:</span>
+                  <span className="info-value-inline event-code-inline">{activeEventInfo.code}</span>
+                </div>
+                {activeEventInfo.coordinatorCode && (
+                  <div className="active-event-info-item-inline">
+                    <span className="info-label-inline">Coordinator:</span>
+                    <span className="info-value-inline coordinator-code-inline">{activeEventInfo.coordinatorCode}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
           <div className="header-actions">
             <button className="back-btn" onClick={() => {
               if (view === 'new') {
