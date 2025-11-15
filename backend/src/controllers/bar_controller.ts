@@ -14,10 +14,10 @@ export const createBar = async (req: Request, res: Response) => {
     bar: savedBar,
   });
   } catch (error: any) {
-  res.status(500).json({
-    message: "Failed to create bar",
-    error: error.message,
-  });
+    res.status(500).json({
+      message: "Failed to create bar",
+      error: error.message,
+    });
   }
 };
 

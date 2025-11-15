@@ -8,7 +8,7 @@ import EventService from "../services/event_service";
  */
 export const createEvent = async (req: Request, res: Response) => {
   try {
-  const savedEvent = await EventService.createEvent(req.body.eventName, req.body.numGroups, req.user!.id);
+  const savedEvent = await EventService.createEvent(req.body.eventName, req.body.numGroups, req.user!.id, req.body.stops);
   
   res.status(201).json({
     message: "Event created successfully",
@@ -26,7 +26,7 @@ export const createEvent = async (req: Request, res: Response) => {
 /**
  * Get all events
  */
-export const getEvents = async (req: Request, res: Response) => {
+export const getAllEvents = async (req: Request, res: Response) => {
   try {
   const events = await EventService.getAllEvents();
   res.json(events);

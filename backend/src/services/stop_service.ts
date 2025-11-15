@@ -124,7 +124,7 @@ export default class StopService {
     const lowest = [...scores.entries()]
       .reduce((a, b) => (a[1] < b[1] ? a : b));
 
-    GroupService.addNextStop()
+    GroupService.addNextStop(groupID, lowest[0])
   }
 
   public static scoreStop = async (startingStop: IStop, destinationStop: IStop) => {
@@ -156,10 +156,10 @@ export default class StopService {
     const destinationBar = startingStop.bar as unknown as IBar;
 
     const distanceMeters = haversineDistance(
-      startingBar.address.coordinates.latitude,
-      startingBar.address.coordinates.longitude,
-      destinationBar.address.coordinates.latitude,
-      destinationBar.address.coordinates.longitude,
+      startingBar.coordinates.latitude,
+      startingBar.coordinates.longitude,
+      destinationBar.coordinates.latitude,
+      destinationBar.coordinates.longitude,
     )
     // TODO: Config? Assume 5km/h walking speed
     return (distanceMeters / 1000 / 5) * 60

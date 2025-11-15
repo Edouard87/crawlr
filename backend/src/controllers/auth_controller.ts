@@ -22,4 +22,11 @@ export default class AuthController {
       process.env.JWT_SECRET as string
     );
   }
+  public static async verifyToken(req: Request, res: Response): Promise<any> {
+    // This assumes we've gotten through the middleware.
+    res.status(200).json({
+      id: req.user!.id,
+      name: req.user!.name,
+    })
+  }
 }

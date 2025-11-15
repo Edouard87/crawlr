@@ -7,7 +7,7 @@ export default class EventService {
      * Create a new event and store it in the MongoDB database.
      * Expects a JSON body with event data.
      */
-    public static createEvent = async (eventname: string, numGroups: number, creatorID: string) => {
+    public static createEvent = async (eventname: string, numGroups: number, creatorID: string, stops: [string]) => {
         if (!creatorID || creatorID.length === 0) {
             throw new Error("Creator ID must be provided to create an event.");
         }
@@ -17,7 +17,7 @@ export default class EventService {
             participants: [],
             coordinators: [],
             groups: [],
-            stops: [],
+            stops: stops,
             status: "planned"
         });
 
@@ -34,7 +34,7 @@ export default class EventService {
         const events = await EventModel.find()
             .populate("createdBy", "displayName email")
             .populate("participants", "displayName email")
-            .populate("bars", "name address");
+            .populate("stops", "name address");
         return events
     };
     
@@ -55,15 +55,16 @@ export default class EventService {
     /**
      * Update event by ID
      */
-    public static updateEvent = async (id: string, newContent: IEvent) => {
+    public static updateEvent = async (id: string, newContent: [string]) => {
         const event = await EventModel.findByIdAndUpdate(
             id,
-            newContent,
+            {
+                stops: newContent
+            },
             { new: true, runValidators: true }
         )
             .populate("createdBy", "displayName email")
-            .populate("participants", "displayName email")
-            .populate("bars", "name address");
+            .populate("participants", "displayName email");
             return event
     }
     
