@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { BarModel, IBar } from "../utils/schema";
+import { BarModel, IBar } from "../models/schema";
 
 /**
  * Create a new bar

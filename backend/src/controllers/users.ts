@@ -1,4 +1,4 @@
-import { UserModel, IUser } from "../utils/schema";
+import { UserModel, IUser } from "../models/schema";
 
 export async function createUser(userData: Omit<IUser, "_id" | "createdAt" | "updatedAt">): Promise<string> {
     const user = new UserModel(userData);

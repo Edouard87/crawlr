@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { EventModel, IEvent } from "../utils/schema";
+import { EventModel, IEvent } from "../models/schema";
 
 /**
  * Create a new event and store it in the MongoDB database.
