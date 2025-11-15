@@ -25,7 +25,6 @@
         "*.js",
         "*.ts"
     ],
-    "dependencies": {},
     "devDependencies": {
         "@types/jest": "^29.5.14",
         "@types/node": "^22.7.9",
@@ -44,5 +43,11 @@
         "titleTemplate": "{classname} - {title}",
         "ancestorSeparator": " > ",
         "usePathForSuiteName": "true"
+    },
+    "dependencies": {
+        "dotenv": "^17.2.3",
+        "express": "^5.1.0",
+        "firebase": "^12.6.0",
+        "firebase-admin": "^13.6.0"
     }
 }
