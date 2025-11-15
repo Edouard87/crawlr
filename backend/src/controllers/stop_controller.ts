@@ -1,63 +1,55 @@
 import { Request, Response } from "express";
-import { CheckInModel, ICheckIn } from "../models/user";
+import { StopModel, IStop } from "src/models/stop";
+import StopService from "src/services/stop_service";
 
-/**
- * Create a new check-in
- */
-export const createCheckIn = async (req: Request, res: Response) => {
+export const createStop = async (req: Request, res: Response) => {
   try {
-    const checkIn = new CheckInModel(req.body);
-    const savedCheckIn = await checkIn.save();
+    const stop = await StopService.createStop(req.body);
     res.status(201).json({
-      message: "Check-in created successfully",
-      id: savedCheckIn._id.toString(),
-      checkIn: savedCheckIn,
+      message: "Stop created successfully",
+      id: stop._id.toString(),
+      stop: stop,
     });
-  } catch (error: any) {
-    res.status(500).json({
-      message: "Failed to create check-in",
-      error: error.message,
-    });
+  } catch (err) {
+    console.error("Error creating stop:", err);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
-/**
- * Get all check-ins
- */
-export const getCheckIns = async (req: Request, res: Response) => {
+export const deleteStop = async (req: Request, res: Response) => {
   try {
-    const checkIns = await CheckInModel.find()
-      .populate("userId", "displayName email")
-      .populate("barId", "name address")
-      .populate("crawlId", "name");
-    res.json(checkIns);
-  } catch (error: any) {
-    res.status(500).json({
-      message: "Failed to get check-ins",
-      error: error.message,
-    });
+    const stop = await StopService.deleteStop(req.body.id);
+    res.status(200);
+  } catch (err) {
+    console.error("Error deleting stop:", err);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
-/**
- * Get check-in by ID
- */
-export const getCheckInById = async (req: Request, res: Response) => {
+export const enqueueGroup = async (req: Request, res: Response) => {
   try {
-    const checkIn = await CheckInModel.findById(req.params.id)
-      .populate("userId", "displayName email")
-      .populate("barId", "name address")
-      .populate("crawlId", "name");
-    if (!checkIn) {
-      res.status(404).json({ message: "Check-in not found" });
-      return;
-    }
-    res.json(checkIn);
-  } catch (error: any) {
-    res.status(500).json({
-      message: "Failed to get check-in",
-      error: error.message,
+    const stop = await StopService.enqueueGroup(req.body.stopID, req.body.groupID);
+    res.status(201).json({
+      message: "Group enqueued successfully",
+      id: stop._id.toString(),
+      stop: stop,
     });
+  } catch (err) {
+    console.error("Error enqueueing group:", err);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
+export const serveGroup = async (req: Request, res: Response) => {
+  try {
+    const stop = await StopService.serveGroup(req.body.stopID);
+    res.status(201).json({
+      message: "Group served successfully",
+      id: stop._id.toString(),
+      stop: stop,
+    });
+  } catch (err) {
+    console.error("Error serving group:", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};

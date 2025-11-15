@@ -1,10 +1,10 @@
 import express from "express";
 import {
-    nextStop,
+    stop,
 } from "../controllers/group_controller";
 
 const groupRouter = express.Router();
 
-groupRouter.get("/nextStop", nextStop);
+groupRouter.get("/stop", stop);
 
 export default groupRouter;

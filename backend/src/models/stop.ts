@@ -1,31 +1,11 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 
 export interface IStop extends Document {
-  bar: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Bar",
-    required: true,
-  },
-  currentGroup: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Group",
-  },
-  event: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Group"
-  }
-  waitingGroups: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Group"
-    }
-  ],
-  inTransitGroups: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Group"
-    }
-  ]
+  bar: Types.ObjectId;
+  event: Types.ObjectId;
+  currentGroups: Types.ObjectId[];
+  waitingGroups: Types.ObjectId[];
+  inTransitGroups: Types.ObjectId[];
 }
 
 const StopSchema = new mongoose.Schema(
@@ -36,29 +16,41 @@ const StopSchema = new mongoose.Schema(
       required: true,
     },
 
-    currentGroup: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Group",
-    },
-
     event: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Event"
+      ref: "Event",
+      required: true,
     },
 
-    waitingGroups: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Group",
-      }
-    ],
+    currentGroup: {
+      type: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Group",
+        }
+      ],
+      default: [],
+    },
 
-    inTransitGroups: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Group",
-      }
-    ],
+    waitingGroups: {
+      type: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Group",
+        }
+      ],
+      default: [],
+    },
+
+    inTransitGroups: {
+      type: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Group",
+        }
+      ],
+      default: [],
+    },
   },
   { timestamps: true }
 );
