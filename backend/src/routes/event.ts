@@ -4,6 +4,7 @@ import {
   updateEvent,
   getEventById,
   deleteEvent,
+  joinEvent
   //startEvent,
 } from "../controllers/event_controller";
 import { authMiddleware } from "../middleware/auth_middleware";
@@ -14,6 +15,8 @@ eventRouter.post("/", authMiddleware, createEvent);
 eventRouter.put("/:id", authMiddleware, updateEvent);
 eventRouter.get("/:id", getEventById);
 eventRouter.delete("/:id", authMiddleware, deleteEvent);
+
+eventRouter.post("/join/:eventCode", joinEvent);
 
 //eventRouter.post("/start/:id", startEvent);
 
