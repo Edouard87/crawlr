@@ -25,6 +25,8 @@ export default class ParticipantService {
     // Create participant, reference group
     // need to come with a group 
     // Allows the participant to join a group with a provided ID.
+    // We need the signInCode in `signInCode` which is compared with the event
+    // sign-in code.
     public static createParticipant = async (participantData: IParticipantData) => {
         try {
         const { signInCode, name, phoneNumber, group } = participantData;
