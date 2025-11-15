@@ -77,5 +77,13 @@ export default class EventService {
             throw new Error("Cannot delete nonexistant event");
         }
     };
+
+    public static joinEvent = async (eventCode: string) => {
+        const event = await EventModel.findOne({ signInCode: eventCode }).populate("groups")
+        if (!event) {
+            throw new Error("Invalid Code");
+        }
+        return event.groups
+    }
 }
 

@@ -27,9 +27,4 @@ export default class GroupService {
     }
     return groupIDs
   }
-
-  public static getAllGroupsForEvent = async (eventId: string) => {
-    const groups = await GroupModel.find({ event: eventId });
-    return groups;
-  }
 }

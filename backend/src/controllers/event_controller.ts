@@ -96,3 +96,20 @@ export const deleteEvent = async (req: Request, res: Response) => {
   });
   }
 };
+
+export const joinEvent = async (req: Request, res: Response) => {
+  try{
+    const groupIDs = await EventService.joinEvent(req.params.eventCode)
+    res.status(200).json(groupIDs)
+  } catch (err: any) {
+    const e = err as Error;
+    if (e.message.includes("Invalid Code")) {
+      res.status(404).json({ message: "Invalid Code" })
+    } else {
+      res.status(500).json({ 
+        message: "Internal server error",
+        error: e.message,
+       })
+    }
+  }
+}
