@@ -7,6 +7,8 @@ export interface IEvent extends Document {
   participants: Types.ObjectId[]; // References to Users
   coordinators: Types.ObjectId[];
   stops: Types.ObjectId[]; // References to Bars, in order
+  signInCode: string;
+  coordinatorCode: string;
   startDate: Date;
   endDate?: Date;
   status: "planned" | "active" | "completed" | "cancelled";
@@ -52,8 +54,33 @@ const EventSchema = new mongoose.Schema(
       enum: ["planned", "active", "completed", "cancelled"],
       required: true,
     },
+
+    signInCode: {
+      type: String,
+      required: true
+    },
+    coordinatorCode: {
+      type: String,
+      required: true
+    }
   },
   { timestamps: true }
 );
+
+function randomCode(): string {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+  let result = ''
+  for (let i = 0; i < 6; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length))
+  }
+  return result;
+}
+
+EventSchema.pre('save', function(next) {
+  
+  this.signInCode = randomCode();
+  this.coordinatorCode = randomCode();
+  next();
+})
 
 export const EventModel = mongoose.model<IEvent>("Event", EventSchema);

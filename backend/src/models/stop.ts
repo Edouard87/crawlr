@@ -10,6 +10,10 @@ export interface IStop extends Document {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Group",
   },
+  event: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Group"
+  }
   waitingGroups: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -21,7 +25,7 @@ export interface IStop extends Document {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Group"
     }
-  ],
+  ]
 }
 
 const StopSchema = new mongoose.Schema(
@@ -35,6 +39,11 @@ const StopSchema = new mongoose.Schema(
     currentGroup: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Group",
+    },
+
+    event: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Event"
     },
 
     waitingGroups: [

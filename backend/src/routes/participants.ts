@@ -1,12 +1,18 @@
-import express from "express";
+import {Router} from 'express'
+
 import {
     createParticipant,
-    changeGroup,
+    getParticipantById,
+    updateParticipant,
+    deleteParticipant
 } from "../controllers/participant_controller";
 
-const participantRouter = express.Router();
+const router = Router();
 
-participantRouter.post("/", createParticipant);
-participantRouter.put("/changeGroup", changeGroup);
+router.post("/", createParticipant);
+router.get("/", getParticipantById);
+router.get("/:id", getParticipantById);
+router.put("/:id", updateParticipant);   // or router.patch
+router.delete("/:id", deleteParticipant);
 
-export default participantRouter;
+export default router;

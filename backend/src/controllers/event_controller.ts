@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
-import { EventModel, IEvent } from "../models/user";
+import { EventModel, IEvent } from "../models/event";
+import EventService from "../services/event_service";
 
 /**
  * Create a new event and store it in the MongoDB database.
@@ -7,9 +8,7 @@ import { EventModel, IEvent } from "../models/user";
  */
 export const createEvent = async (req: Request, res: Response) => {
   try {
-    const eventData = req.body;
-    const event = new EventModel(eventData);
-    const savedEvent = await event.save();
+    const savedEvent = EventService.createEvent(req.body)
     
     res.status(201).json({
       message: "Event created successfully",
@@ -29,11 +28,7 @@ export const createEvent = async (req: Request, res: Response) => {
  */
 export const getEvents = async (req: Request, res: Response) => {
   try {
-    const events = await EventModel.find()
-      .populate("createdBy", "displayName email")
-      .populate("participants", "displayName email")
-      .populate("bars", "name address");
-    
+    const events = await EventService.getAllEvents();
     res.json(events);
   } catch (error: any) {
     res.status(500).json({
@@ -48,15 +43,8 @@ export const getEvents = async (req: Request, res: Response) => {
  */
 export const getEventById = async (req: Request, res: Response) => {
   try {
-    const event = await EventModel.findById(req.params.id)
-      .populate("createdBy", "displayName email")
-      .populate("participants", "displayName email")
-      .populate("bars", "name address");
-    
-    if (!event) {
-      res.status(404).json({ message: "Event not found" });
-      return;
-    }
+
+    const event = await EventService.getEventById(req.id)
     
     res.json(event);
   } catch (error: any) {
@@ -72,11 +60,7 @@ export const getEventById = async (req: Request, res: Response) => {
  */
 export const updateEvent = async (req: Request, res: Response) => {
   try {
-    const event = await EventModel.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    )
+    const event = await EventService.updateEvent(req.id, req.body)
       .populate("createdBy", "displayName email")
       .populate("participants", "displayName email")
       .populate("bars", "name address");

@@ -1,30 +1,18 @@
 import { Request, Response, Router } from "express";
-import { ParticipantModel } from "../models/user";
+import { ParticipantModel } from "../models/participant";
+import ParticipantService from "../services/participant_service"
 
 // Create participant, reference group
 export const createParticipant = async (req: Request, res: Response) => {
   try {
-    const { name, phoneNumber, group } = req.body;
+    
+    const participant = await ParticipantService.createParticipant(req.body);
 
-    if (!name || !phoneNumber) {
-      return res.status(400).json({ message: "Missing required fields" });
-    }
-
-    const participant = await ParticipantModel.create({
-      name,
-      phoneNumber,
-      group,
-      isCoordinator: false,
-      stopAssigned: null,
-    });
-
-    const populated = await 
-        participant.populate("group");
-
-    return res.status(201).json(populated);
+    return res.status(201).json(participant);
   } catch (err) {
-    console.error("Error creating participant:", err);
+
     return res.status(500).json({ message: "Internal server error" });
+    
   }
 };
 
@@ -111,12 +99,4 @@ export const deleteParticipant = async (req: Request, res: Response) => {
 };
 
 // Optional router for convenience
-const router = Router();
 
-router.post("/", createParticipant);
-router.get("/", getParticipants);
-router.get("/:id", getParticipantById);
-router.put("/:id", updateParticipant);   // or router.patch
-router.delete("/:id", deleteParticipant);
-
-export default router;
