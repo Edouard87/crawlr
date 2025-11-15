@@ -13,3 +13,7 @@ export const stop = async (req: Request, res: Response) => {
   return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const getAllGroupsForEvent = async (req: Request, res: Response) => {
+    return await GroupService.getAllGroupsForEvent(req.params.eventId);
+}

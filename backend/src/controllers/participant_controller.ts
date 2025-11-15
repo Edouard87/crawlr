@@ -4,16 +4,10 @@ import ParticipantService from "../services/participant_service"
 
 // Create participant, reference group
 export const createParticipant = async (req: Request, res: Response) => {
-  try {
   
   const participant = await ParticipantService.createParticipant(req.body);
 
   return res.status(201).json(participant);
-  } catch (err) {
-
-  return res.status(500).json({ message: "Internal server error" });
-  
-  }
 };
 
 // Verify join password and create coord
