@@ -35,17 +35,7 @@ export const createUser = async (req: Request, res: Response) => {
   }
 };
 
-export const getUsers = async (_req: Request, res: Response) => {
-  try {
-    const users = await UserModel.find().select("-password"); // exclude password
-    return res.status(200).json(users);
-  } catch (err) {
-    console.error("Error fetching users:", err);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-export const getUserById = async (req: Request, res: Response) => {
+export const getUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
