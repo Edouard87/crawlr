@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
-import { BarModel, IBar } from "../models/user";
+import { BarModel, IBar } from "../models/bar";
+import BarService from "../services/bar_service"
 
 /**
  * Create a new bar
  */
 export const createBar = async (req: Request, res: Response) => {
   try {
-    const bar = new BarModel(req.body);
-    const savedBar = await bar.save();
+    const savedBar = await BarService.createBar(req.body)
     res.status(201).json({
       message: "Bar created successfully",
       id: savedBar._id.toString(),
@@ -24,9 +24,9 @@ export const createBar = async (req: Request, res: Response) => {
 /**
  * Get all bars
  */
-export const getBars = async (req: Request, res: Response) => {
+export const getAllBars = async (req: Request, res: Response) => {
   try {
-    const bars = await BarModel.find();
+    const bars = await BarService.getAllBars();
     res.json(bars);
   } catch (error: any) {
     res.status(500).json({
@@ -41,10 +41,9 @@ export const getBars = async (req: Request, res: Response) => {
  */
 export const getBarById = async (req: Request, res: Response) => {
   try {
-    const bar = await BarModel.findById(req.params.id);
+    const bar = await BarService.getBarById(req.body.id);
     if (!bar) {
-      res.status(404).json({ message: "Bar not found" });
-      return;
+      return res.status(404).json({ message: "Bar not found" });
     }
     res.json(bar);
   } catch (error: any) {
@@ -60,16 +59,14 @@ export const getBarById = async (req: Request, res: Response) => {
  */
 export const updateBar = async (req: Request, res: Response) => {
   try {
-    const bar = await BarModel.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
-    if (!bar) {
-      res.status(404).json({ message: "Bar not found" });
-      return;
+    const updatedBar = await BarService.updateBar(req.params.id, req.body);
+    if (!updatedBar) {
+      return res.status(404).json({ message: "Bar not found" });
     }
-    res.json(bar);
+    res.json({
+      message: "Bar updated successfully",
+      bar: updatedBar
+    });
   } catch (error: any) {
     res.status(500).json({
       message: "Failed to update bar",
@@ -83,12 +80,13 @@ export const updateBar = async (req: Request, res: Response) => {
  */
 export const deleteBar = async (req: Request, res: Response) => {
   try {
-    const bar = await BarModel.findByIdAndDelete(req.params.id);
-    if (!bar) {
-      res.status(404).json({ message: "Bar not found" });
-      return;
+    const deletedBar = await BarService.deleteBar(req.params.id);
+    if (!deletedBar) {
+      return res.status(404).json({ message: "Bar not found" });
     }
-    res.json({ message: "Bar deleted successfully" });
+    res.json({
+      message: "Bar deleted successfully"
+    });
   } catch (error: any) {
     res.status(500).json({
       message: "Failed to delete bar",
