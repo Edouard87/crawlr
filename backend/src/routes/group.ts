@@ -5,6 +5,6 @@ import {
 
 const groupRouter = express.Router();
 
-groupRouter.get("/create", nextStop);
+groupRouter.get("/nextStop", nextStop);
 
 export default groupRouter;

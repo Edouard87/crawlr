@@ -8,10 +8,10 @@ import {
 
 const stopRouter = express.Router();
 
-stopRouter.post("/create", createStop);
-stopRouter.delete("/delete", deleteStop);
+stopRouter.post("/", createStop);
+stopRouter.delete("/:id", deleteStop);
 
-stopRouter.put("/addGroup", addGroup);
-stopRouter.put("/vacateGroup", vacateGroup);
+stopRouter.put("/addGroup/:id", addGroup);
+stopRouter.put("/vacateGroup/:id", vacateGroup);
 
 export default stopRouter;

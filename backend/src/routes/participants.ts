@@ -6,7 +6,7 @@ import {
 
 const participantRouter = express.Router();
 
-participantRouter.post("/create", createParticipant);
+participantRouter.post("/", createParticipant);
 participantRouter.put("/changeGroup", changeGroup);
 
 export default participantRouter;
