@@ -57,11 +57,11 @@ const EventSchema = new mongoose.Schema(
 
   signInCode: {
     type: String,
-    required: true
+    required: false
   },
   coordinatorCode: {
     type: String,
-    required: true
+    required: false
   }
   },
   { timestamps: true }

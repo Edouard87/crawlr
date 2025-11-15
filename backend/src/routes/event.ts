@@ -6,13 +6,14 @@ import {
   deleteEvent,
   //startEvent,
 } from "../controllers/event_controller";
+import { authMiddleware } from "src/middleware/auth_middleware";
 
 const eventRouter = express.Router();
 
-eventRouter.post("/", createEvent);
-eventRouter.put("/:id", updateEvent);
+eventRouter.post("/", authMiddleware, createEvent);
+eventRouter.put("/:id", authMiddleware, updateEvent);
 eventRouter.get("/:id", getEventById);
-eventRouter.delete("/:id", deleteEvent);
+eventRouter.delete("/:id", authMiddleware, deleteEvent);
 
 //eventRouter.post("/start/:id", startEvent);
 

@@ -1,13 +1,29 @@
 import { Request, Response } from "express";
 import { EventModel, IEvent } from "../models/event";
 
+interface IEventData {
+    name: String,
+    participants: string[],
+    coordinators: string[],
+}
+
 export default class EventService {
     /**
      * Create a new event and store it in the MongoDB database.
      * Expects a JSON body with event data.
      */
-    public static createEvent = async (eventData: IEvent) => {
-        const event = new EventModel(eventData);
+    public static createEvent = async (eventname: string, creatorID: string) => {
+        if (!creatorID || creatorID.length === 0) {
+            throw new Error("Creator ID must be provided to create an event.");
+        }
+        const event = new EventModel({
+            name: eventname,
+            createdBy: creatorID,
+            participants: [],
+            coordinators: [],
+            stops: [],
+            status: "planned"
+        });
         const savedEvent = await event.save();
         return savedEvent
     };

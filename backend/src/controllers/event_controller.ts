@@ -4,11 +4,11 @@ import EventService from "../services/event_service";
 
 /**
  * Create a new event and store it in the MongoDB database.
- * Expects a JSON body with event data.
+ * Expects a JSON body with event data. Passed in body `eventName`.
  */
 export const createEvent = async (req: Request, res: Response) => {
   try {
-  const savedEvent = await EventService.createEvent(req.body)
+  const savedEvent = await EventService.createEvent(req.body.eventName, req.user!.id);
   
   res.status(201).json({
     message: "Event created successfully",
