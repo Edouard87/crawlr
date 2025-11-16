@@ -28,15 +28,30 @@ function ParticipantView({ user, apiKey, onLogout }) {
   }
 
   function loadStop() {
-    axios({
-        url: `${API_URL}/group/stop`,
-        body: user.groupID || null,
-      }).then(res => {
-        setStop(res.data.stop)
-      }).catch(err => {
-        // TODO: Error checking
-        console.error(err)
-      })
+    // axios({
+    //     url: `${API_URL}/group/stop`,
+    //     body: user.groupID || null,
+    //   }).then(res => {
+    //     setStop(res.data.stop)
+    //   }).catch(err => {
+    //     // TODO: Error checking
+    //     console.error(err)
+    //   });
+    if (user.group === 1) {
+      setStop({
+        bar: {
+          name: "Bar 1",
+          address: "123 Some St."
+        }
+      });
+    } else if (user.group === 2) {
+      setStop({
+        bar: {
+          name: "Bar 2",
+          address: "456 Main St."
+        }
+      });
+    }
   }
 
   useEffect(() => {
@@ -68,7 +83,7 @@ function ParticipantView({ user, apiKey, onLogout }) {
         {stop ? (
           <div className="current-bar-card">
             <div className="bar-status-badge current">You're Here</div>
-            <h2>{currentBar.name}</h2>
+            <h2>{stop.bar.name}</h2>
             <p className="bar-address">{stop.bar.address}</p>
           </div>
         ) : (
