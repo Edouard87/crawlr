@@ -60,7 +60,7 @@ function App() {
   if (user.role === 'coordinator') {
     return (
       <ErrorBoundary>
-        <CoordinatorView user={user} onLogout={handleLogout} currentBar={user?.currentBar}/>
+        <CoordinatorView user={user} onLogout={handleLogout} currentStop={user.currentStop}/>
       </ErrorBoundary>
     )
   }

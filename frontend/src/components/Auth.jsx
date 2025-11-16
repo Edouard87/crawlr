@@ -26,9 +26,9 @@ function Auth({ onLogin }) {
   const [showBarSelection, setShowBarSelection] = useState(false)
   const [invalidAdminCredentials, setInvalidAdminCredentials] = useState(false)
   const [submittingCoord, setSubmittingCoord] = useState(false)
-  const [bars, setBars] = useState([])
+  const [stops, setStops] = useState([])
 
-  const [cookies, setCookie, removeCookie] = useCookies(['authCode', 'coordCode', 'token', 'assignedBarID'], {
+  const [cookies, setCookie, removeCookie] = useCookies(['authCode', 'coordCode', 'token', 'coordinatorStopID'], {
     doNotParse: true,
   });
 
@@ -114,7 +114,7 @@ function Auth({ onLogin }) {
       setShowCoordinatorPrompt(false)
       setShowBarSelection(true)
       setEventName(res.data.name || 'Bar Crawl Event')
-      setBars(res.data.bars || [])
+      setStops(res.data.stops || [])
     }).catch(err => {
       // invalid code or something went wrong.
       setInvalidEventCode(true);
@@ -130,16 +130,16 @@ function Auth({ onLogin }) {
     // Keep username and phone when going back
   }
 
-  const handleBarSelect = async (barId) => {
-    const selectedBar = bars.find(b => b._id === barId)
+  const handleBarSelect = async (stopId) => {
+    const selectedStop = stops.find(b => b._id === stopId)
     
-    if (!selectedBar) {
+    if (!selectedStop) {
       // TODO: Error handling
       throw new Error('Bar not found');
     }
 
     setCookie('coordCode', coordinatorCode.trim().toUpperCase(), { path: '/' });
-    setCookie('coordinatorBarID', barId, { path: '/' });
+    setCookie('coordinatorStopID', stopId, { path: '/' });
 
     // Login as coordinator
     onLogin({ 
@@ -147,7 +147,7 @@ function Auth({ onLogin }) {
       username: username.trim() || `Coordinator ${Date.now()}`,
       phoneNumber: phoneNumber.trim() || null,
       coordCode: coordinatorCode.trim().toUpperCase(),
-      currentBar: selectedBar,
+      currentStop: selectedStop,
       isCoordinator: true
     })
   }
@@ -166,7 +166,7 @@ function Auth({ onLogin }) {
             </p>
             <BarSelectionList 
               eventCode={coordinatorCode.trim().toUpperCase()}
-              bars={bars}
+              bars={stops}
               onBarSelect={handleBarSelect}
               onBack={() => {
                 setShowBarSelection(false)

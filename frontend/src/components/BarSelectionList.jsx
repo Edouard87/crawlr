@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useCookies } from 'react-cookie'
 
-function BarSelectionList({ onBarSelect, onBack, bars }) {
+function BarSelectionList({ onBarSelect, onBack, bars: stops }) {
 
-  if (!bars) {
+  if (!stops) {
     return <p>Loading bars...</p>
   }
 
-  if (bars.length === 0) {
+  if (stops.length === 0) {
     return (
       <>
         <p>No bars available for this event.</p>
@@ -22,14 +22,14 @@ function BarSelectionList({ onBarSelect, onBack, bars }) {
   return (
     <>
       <div className="bars-selection-list">
-        {bars.map(bar => (
+        {stops.map(stop => (
           <button
-            key={bar._id}
+            key={stop._id}
             className="bar-select-btn"
-            onClick={() => onBarSelect(bar._id)}
+            onClick={() => onBarSelect(stop._id)}
           >
-            {bar.name}
-            <span className="bar-address-small">{bar.address}</span>
+            {stop.name}
+            <span className="bar-address-small">{stop.bar.address}</span>
           </button>
         ))}
       </div>

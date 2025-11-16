@@ -270,19 +270,20 @@ function AdminView({ user, apiKey, onLogout, onApiKeyChange }) {
     setShowStartConfirm(true)
   }
 
-  const handleStartEvent = () => {
-    if (!selectedEvent) return
-    
-    const startedEvent = startEvent(selectedEvent.id)
-    if (startedEvent) {
-      // setEventCode(startedEvent.code)
-      // setEventCodeType('started')
-      // setView('active')
-      // loadEventData(startedEvent)
-      // loadEvents()
-    }
-    setShowStartConfirm(false)
-    setSelectedEvent(null)
+  const handleStartEvent = (eventId) => {
+    axios({
+      url: `${API_URL}/event/start/${eventId}`,
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${cookies.token}`
+      }
+    }).then(res => {
+      // Event started. Reload view.
+      loadEvents()
+    }).catch(err => {
+      // TODO: Errors
+      console.error(err)
+    })
   }
 
   // Selection screen
@@ -398,9 +399,11 @@ function AdminView({ user, apiKey, onLogout, onApiKeyChange }) {
                           <p><strong>Started:</strong> {new Date(event.startedAt).toLocaleDateString()}</p>
                         )}
                       </div>
+                      <p><string>Status:</string> {event.status}</p>
                       {/* <Button variant="contained" onClick={() => {handleViewStops(event._id)}}>View Stops</Button> */}
                       {/* TODO: MAKE IT POSSIBLE TO VIEW EVENTS. */}
                       <Button color="error" onClick={() => {handleDeleteEvent(event._id)}}>Delete Event</Button>
+                      { event.status === "planned" && <Button color="green" onClick={() => {handleStartEvent(event._id)}}>Start Event</Button>}
                     </div>
                   </Grid>
                   ))}
