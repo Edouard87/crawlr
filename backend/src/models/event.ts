@@ -6,7 +6,7 @@ export interface IEvent extends Document {
   coordinatorPassword: string;
   participants: Types.ObjectId[]; // References to Users
   coordinators: Types.ObjectId[];
-  groups: Types.ObjectId[];
+  groups: Types.ObjectId[]; 
   stops: Types.ObjectId[]; // References to Bars, in order
   signInCode: string;
   coordinatorCode: string;

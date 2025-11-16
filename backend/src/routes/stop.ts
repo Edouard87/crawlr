@@ -5,11 +5,14 @@ import {
   enqueueGroup,
   serveGroup,
   vacateGroup,
+  getStopById
+  //vacateGroup,
 } from "../controllers/stop_controller";
 
 const stopRouter = express.Router();
 
 stopRouter.post("/", createStop);
+stopRouter.get("/:id", getStopById);
 stopRouter.delete("/:id", deleteStop);
 
 stopRouter.put("/enqueueGroup/:stopID/:groupID", enqueueGroup);

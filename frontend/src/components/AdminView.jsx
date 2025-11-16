@@ -8,6 +8,8 @@ import './AdminView.css'
 import axios from 'axios'
 import { useCookies } from 'react-cookie'
 import BarList from './BarList'
+import Grid from '@mui/material/Grid';
+import { Typography, Button } from '@mui/material'
 
 const API_URL = import.meta.env.VITE_API_URL
 
@@ -60,7 +62,7 @@ function AdminView({ user, apiKey, onLogout, onApiKeyChange }) {
       }
     }).then(res => {
       setEvents(res.data)
-    }).then(err => {
+    }).catch(err => {
       // TODO: Better error handling.
     })
   }
@@ -153,6 +155,7 @@ function AdminView({ user, apiKey, onLogout, onApiKeyChange }) {
     if (stops.length === 0) {
       // TODO: Error handling
     }
+    
     axios({
       method: 'post',
       headers: {
@@ -165,23 +168,47 @@ function AdminView({ user, apiKey, onLogout, onApiKeyChange }) {
       }
     }).then(res => {
       // Add stops to the event.
-      axios({
-        url: `${API_URL}/event/${res.data.id}`,
-        headers: {
-          'Authorization': `Bearer ${cookies.token}`
-        },
-        method: 'put',
-        data: {
-          stops: barStopIDs
-        }
-      }).then(res => {
-        setView('existing')
-        loadEvents()
-      }).catch(err => {
-        // TODO: More error handling
+      // Turn all events into stops
+      let groupTransactions = [];
+      let groupIds = [];
+      stops.forEach(stop => {
+        groupTransactions.push(axios({
+          url: `${API_URL}/stop/`,
+          method: 'post',
+          data: {
+            bar: stop._id,
+            event: res.data.id,
+            stops: []
+          }
+        }))
       })
+        Promise.all(groupTransactions).then(responses => {
+          groupIds = responses.map(res => res.data.id);
+          axios({
+          url: `${API_URL}/event/${res.data.id}`,
+          headers: {
+            'Authorization': `Bearer ${cookies.token}`
+          },
+          method: 'put',
+          data: {
+            stops: groupIds,
+          }
+        }).then(res => {
+          setView('existing')
+          loadEvents()
+        }).catch(err => {
+          // TODO: More error handling
+          console.error(err)
+        })
+        // All stops created successfully
+      }).catch(err => {
+        throw new Error('Error creating stops for event')
+      });
     }).catch(err => {
       // TODO: ERROR Handling
+      console.error(err)
+      console.log(barStopIDs)
+      console.log(Array.isArray(barStopIDs));
     })
   }
 
@@ -305,6 +332,25 @@ function AdminView({ user, apiKey, onLogout, onApiKeyChange }) {
     )
   }
 
+  function handleViewStops(eventId) {
+    // Displays the stops for the selected event.
+  }
+
+  function handleDeleteEvent(eventId) {
+    // Deletes the selected event.
+    axios({
+      url: `${API_URL}/event/${eventId}`,
+      method: 'delete',
+      headers: { 
+        'authorization': `Bearer ${cookies.token}`
+      }
+    }).then(res => {
+      loadEvents()
+    }).catch(err => {
+      // TODO: Better error handling.
+    })
+  }
+
   // Existing events screen
   if (view === 'existing') {
     return (
@@ -326,21 +372,12 @@ function AdminView({ user, apiKey, onLogout, onApiKeyChange }) {
           </div>
         </header>
         
-        <div className="app-container">
-          <div className="events-list">
-            {events.length === 0 ? (
-              <div className="empty-state">
-                <p>No events found. Create a new event to get started!</p>
-                <button className="create-btn" onClick={() => setView('new')}>
-                  Create New Event
-                </button>
-              </div>
-            ) : (
-              <>
-                <h2>Saved Events ({events.length})</h2>
-                <div className="events-grid">
-                  {events.map(event => (
-                    <div key={event.id} className="event-card">
+        <div className="app-container-no-flex">
+          <h2>Existing Events ({events.length})</h2>
+          <Grid container spacing={2} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+            {events.map(event => (
+                  <Grid item xs={12}>
+                    <div key={event._id} className="event-card">
                       <div className="event-header">
                         <h3>{event.name}</h3>
                         {event.isActive && (
@@ -355,37 +392,19 @@ function AdminView({ user, apiKey, onLogout, onApiKeyChange }) {
                             <p><strong>Sign In Code:</strong> <span className="coordinator-code-display">{event.signInCode}</span></p>
                           </>
                         )}
-                        <p><strong>Bars:</strong> {event.bars?.length || 0}</p>
+                        <p><strong>Stops:</strong> {event.stops?.length || 0}</p>
                         <p><strong>Created:</strong> {new Date(event.createdAt).toLocaleDateString()}</p>
                         {event.startedAt && (
                           <p><strong>Started:</strong> {new Date(event.startedAt).toLocaleDateString()}</p>
                         )}
                       </div>
-                      {/* {!event.isActive && (
-                        <button 
-                          className="start-event-btn"
-                          onClick={() => handleSelectEvent(event)}
-                        >
-                          Start Event
-                        </button>
-                      )} */}
-                      {event.isActive && (
-                        <button 
-                          className="view-event-btn"
-                          onClick={() => {
-                            setView('active')
-                            loadEventData(event)
-                          }}
-                        >
-                          View Active Event
-                        </button>
-                      )}
+                      {/* <Button variant="contained" onClick={() => {handleViewStops(event._id)}}>View Stops</Button> */}
+                      {/* TODO: MAKE IT POSSIBLE TO VIEW EVENTS. */}
+                      <Button color="error" onClick={() => {handleDeleteEvent(event._id)}}>Delete Event</Button>
                     </div>
+                  </Grid>
                   ))}
-                </div>
-              </>
-            )}
-          </div>
+          </Grid>
         </div>
 
         {showStartConfirm && selectedEvent && (

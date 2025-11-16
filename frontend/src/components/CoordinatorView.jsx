@@ -1,20 +1,15 @@
 import { useState, useEffect } from 'react'
-import { getBars, getBarWaitingList } from '../services/barCrawlService'
-import { getAllAttendeeLocations } from '../services/barCrawlService'
 import './CoordinatorView.css'
 
-function CoordinatorView({ user, onLogout }) {
+function CoordinatorView({ user, onLogout, currentBar }) {
   const [bars, setBars] = useState([])
-  const [currentBar, setCurrentBar] = useState(null)
   const [groupsWaiting, setGroupsWaiting] = useState([])
   const [groupsInside, setGroupsInside] = useState([])
   const [groupsNotInside, setGroupsNotInside] = useState([])
   const [draggedGroup, setDraggedGroup] = useState(null)
   const [draggedFrom, setDraggedFrom] = useState(null)
-  const [isInitialLoad, setIsInitialLoad] = useState(true)
 
   useEffect(() => {
-    loadBars()
     
     // Only load group data if we have a current bar
     if (currentBar) {
@@ -29,29 +24,29 @@ function CoordinatorView({ user, onLogout }) {
     }
   }, [currentBar])
 
-  const loadBars = () => {
-    const allBars = getBars()
-    setBars(allBars)
+  // const loadBars = () => {
+  //   const allBars = getBars()
+  //   setBars(allBars)
     
-    // Only set current bar from localStorage on initial load
-    if (isInitialLoad) {
-      setIsInitialLoad(false)
-      const savedUser = localStorage.getItem('bar_crawl_user')
-      if (savedUser) {
-        try {
-          const userData = JSON.parse(savedUser)
-          if (userData.currentBarId) {
-            const bar = allBars.find(b => b.id === userData.currentBarId)
-            if (bar) {
-              setCurrentBar(bar)
-            }
-          }
-        } catch (e) {
-          // Ignore parse errors
-        }
-      }
-    }
-  }
+  //   // Only set current bar from localStorage on initial load
+  //   if (isInitialLoad) {
+  //     setIsInitialLoad(false)
+  //     const savedUser = localStorage.getItem('bar_crawl_user')
+  //     if (savedUser) {
+  //       try {
+  //         const userData = JSON.parse(savedUser)
+  //         if (userData.currentBarId) {
+  //           const bar = allBars.find(b => b.id === userData.currentBarId)
+  //           if (bar) {
+  //             setCurrentBar(bar)
+  //           }
+  //         }
+  //       } catch (e) {
+  //         // Ignore parse errors
+  //       }
+  //     }
+  //   }
+  // }
 
   const loadGroupData = () => {
     if (!currentBar) return
@@ -313,47 +308,11 @@ function CoordinatorView({ user, onLogout }) {
     )
   }
 
-  if (!currentBar) {
-    return (
-      <div className="coordinator-view">
-        <div className="coordinator-header">
-          <h1>🍺 Coordinator</h1>
-          <button className="logout-btn" onClick={onLogout}>Logout</button>
-        </div>
-        <div className="coordinator-content">
-          <div className="bar-selection">
-            <h2>Select Your Bar</h2>
-            {bars.length === 0 ? (
-              <p>No bars available</p>
-            ) : (
-              <div className="bars-list">
-                {bars.map(bar => (
-                  <button
-                    key={bar.id}
-                    className="bar-select-btn"
-                    onClick={() => {
-                      setCurrentBar(bar)
-                      // Update user's current bar
-                      const updatedUser = { ...user, currentBarId: bar.id }
-                      localStorage.setItem('bar_crawl_user', JSON.stringify(updatedUser))
-                    }}
-                  >
-                    {bar.name}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="coordinator-view">
       <div className="coordinator-header">
         <div>
-          <h1>🍺 Coordinator</h1>
+          <h1>Coordinator</h1>
           <p>Bar: {currentBar.name}</p>
         </div>
         <div className="header-actions">

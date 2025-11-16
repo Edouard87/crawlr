@@ -5,7 +5,8 @@ import {
   getEventById,
   deleteEvent,
   joinEvent,
-  getAllEvents
+  getAllEvents, 
+  getEventByCoordCode
   //startEvent,
 } from "../controllers/event_controller";
 import { authMiddleware } from "../middleware/auth_middleware";
@@ -18,8 +19,11 @@ eventRouter.get("/:id", authMiddleware, getEventById);
 eventRouter.delete("/:id", authMiddleware, deleteEvent);
 eventRouter.get("/", authMiddleware, getAllEvents);
 
+// TODO: This method should probably be protected.
+eventRouter.get("/code/:coordCode", getEventByCoordCode);
+
 eventRouter.post("/join/:eventCode", joinEvent);
 
-//eventRouter.post("/start/:id", startEvent);
+// TODO: eventRouter.post("/start/:id", startEvent);
 
 export default eventRouter;

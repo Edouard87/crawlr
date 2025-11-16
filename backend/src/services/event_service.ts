@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { EventModel, IEvent } from "../models/event";
 import GroupService from "./group_service";
+import { Document, Types } from "mongoose";
 
 export default class EventService {
     /**
@@ -85,6 +86,33 @@ export default class EventService {
             throw new Error("Invalid Code");
         }
         return event.groups
+    }
+
+    public static getEventByCode = async (coordCode: string) => {
+        // Get the bars associated with the event.
+        // At the same time verifies that the provided coord code is valid.
+        const doc: Document = await EventModel.findOne({ coordinatorCode:  coordCode }).populate({
+            path: "stops",
+            populate: [
+                { path: "bar"}
+            ]
+        })
+        if (!doc) {
+            throw new Error("Invalid Code");
+        }
+        const event: IEvent = doc.toObject() as IEvent;
+        const bars = []
+        event.stops.forEach((stopID: Types.ObjectId) => {
+            // @ts-ignore
+            bars.push(stopID.bar)
+        })
+        // DO NOT RETURN ALL DATA ABOUT THE EVENT AS THIS IS INSECURE.
+        return {
+            _id: event._id,
+            bars,
+            name: event.name,
+            status: event.status,
+        }
     }
 }
 

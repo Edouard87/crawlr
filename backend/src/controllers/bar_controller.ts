@@ -41,7 +41,7 @@ export const getAllBars = async (req: Request, res: Response) => {
  */
 export const getBarById = async (req: Request, res: Response) => {
   try {
-  const bar = await BarService.getBarById(req.params.stopID);
+  const bar = await BarService.getBarById(req.params.id);
   if (!bar) {
     return res.status(404).json({ message: "Bar not found" });
   }

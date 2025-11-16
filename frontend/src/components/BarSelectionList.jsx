@@ -1,25 +1,10 @@
 import { useState, useEffect } from 'react'
-import { getBars } from '../services/barCrawlService'
+import axios from 'axios'
+import { useCookies } from 'react-cookie'
 
-function BarSelectionList({ eventCode, onBarSelect, onBack }) {
-  const [bars, setBars] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
+function BarSelectionList({ onBarSelect, onBack, bars }) {
 
-  useEffect(() => {
-    const loadBars = () => {
-      try {
-        const allBars = getBars()
-        setBars(allBars)
-      } catch (error) {
-        console.error('Error loading bars:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    loadBars()
-  }, [])
-
-  if (isLoading) {
+  if (!bars) {
     return <p>Loading bars...</p>
   }
 
@@ -39,9 +24,9 @@ function BarSelectionList({ eventCode, onBarSelect, onBack }) {
       <div className="bars-selection-list">
         {bars.map(bar => (
           <button
-            key={bar.id}
+            key={bar._id}
             className="bar-select-btn"
-            onClick={() => onBarSelect(bar.id)}
+            onClick={() => onBarSelect(bar._id)}
           >
             {bar.name}
             <span className="bar-address-small">{bar.address}</span>

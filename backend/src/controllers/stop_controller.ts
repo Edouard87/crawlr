@@ -75,3 +75,8 @@ export const vacateGroup = async (req: Request, res: Response) => {
     })
   }
 }
+
+export const getStopById = async (req: Request, res: Response) => {
+  const stop = await StopService.getStopById(req.params.id);
+  res.status(200).json(stop);
+};

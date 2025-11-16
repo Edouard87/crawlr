@@ -3,7 +3,6 @@ import BarSelectionList from './BarSelectionList'
 import './Auth.css'
 import axios from 'axios'
 import { useCookies } from 'react-cookie'
-import Alert from '@mui/material/Alert';
 
 const API_URL = import.meta.env.VITE_API_URL
 
@@ -11,7 +10,11 @@ function Auth({ onLogin }) {
   const [username, setUsername] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
   const [password, setPassword] = useState('')
+
   const [eventCode, setEventCode] = useState('')
+  const [eventName, setEventName] = useState('')
+  const [coordinatorCode, setCoordinatorCode] = useState('')
+
   const [isAdmin, setIsAdmin] = useState(false)
   const [showGroupSelection, setShowGroupSelection] = useState(false)
   const [selectedGroup, setSelectedGroup] = useState(null)
@@ -19,11 +22,13 @@ function Auth({ onLogin }) {
   const [invalidEventCode, setInvalidEventCode] = useState(false)
   const [groups, setGroups] = useState([])
   const [showCoordinatorPrompt, setShowCoordinatorPrompt] = useState(false)
-  const [coordinatorCode, setCoordinatorCode] = useState('')
+
   const [showBarSelection, setShowBarSelection] = useState(false)
   const [invalidAdminCredentials, setInvalidAdminCredentials] = useState(false)
+  const [submittingCoord, setSubmittingCoord] = useState(false)
+  const [bars, setBars] = useState([])
 
-  const [cookies, setCookie, removeCookie] = useCookies(['authCode', 'token'], {
+  const [cookies, setCookie, removeCookie] = useCookies(['authCode', 'coordCode', 'token', 'assignedBarID'], {
     doNotParse: true,
   });
 
@@ -38,6 +43,7 @@ function Auth({ onLogin }) {
         setCookie('token', res.data, { path: '/' });
         onLogin({ role: 'admin', username });
       }).catch(err => {
+        console.log(err)
         if (err.response.status === 401) {
           // Error message for invalid admin credentials.
           setInvalidAdminCredentials(true)
@@ -95,45 +101,27 @@ function Auth({ onLogin }) {
   }
 
   const handleCoordinatorSubmit = async () => {
-    if (!coordinatorCode.trim() || coordinatorCode.trim().length !== 4) {
-      alert('Please enter a valid 4-digit coordinator code')
-      return
+    if (!coordinatorCode.trim() || coordinatorCode.trim().length !== 6) {
+      // TODO: Error message
     }
 
-    // Validate coordinator code
-    const { validateCoordinatorCode } = await import('../services/eventService')
-    const isValid = validateCoordinatorCode(eventCode.trim().toUpperCase(), coordinatorCode.trim())
-    
-    if (!isValid) {
-      alert('Invalid coordinator code. Please try again.')
-      setCoordinatorCode('')
-      return
-    }
+    // Verify code
+    axios({
+      method: 'get',
+      url: `${API_URL}/event/code/${coordinatorCode.trim().toUpperCase()}`,
+    }).then(res => {
+      // Valid code
+      setShowCoordinatorPrompt(false)
+      setShowBarSelection(true)
+      setEventName(res.data.name || 'Bar Crawl Event')
+      setBars(res.data.bars || [])
+    }).catch(err => {
+      // invalid code or something went wrong.
+      setInvalidEventCode(true);
+    })
 
     // Show bar selection after code validation
-    setShowCoordinatorPrompt(false)
-    setShowBarSelection(true)
-  }
-
-  const handleBarSelect = async (barId) => {
-    const { getBars } = await import('../services/barCrawlService')
-    const bars = getBars()
-    const selectedBar = bars.find(b => b.id === barId)
     
-    if (!selectedBar) {
-      alert('Bar not found')
-      return
-    }
-
-    // Login as coordinator
-    onLogin({ 
-      role: 'coordinator', 
-      username: username.trim() || `Coordinator ${Date.now()}`,
-      phoneNumber: phoneNumber.trim() || null,
-      eventCode: eventCode.trim().toUpperCase(),
-      currentBarId: barId,
-      isCoordinator: true
-    })
   }
 
   const handleBackToUsername = () => {
@@ -142,12 +130,34 @@ function Auth({ onLogin }) {
     // Keep username and phone when going back
   }
 
+  const handleBarSelect = async (barId) => {
+    const selectedBar = bars.find(b => b._id === barId)
+    
+    if (!selectedBar) {
+      // TODO: Error handling
+      throw new Error('Bar not found');
+    }
+
+    setCookie('coordCode', coordinatorCode.trim().toUpperCase(), { path: '/' });
+    setCookie('coordinatorBarID', barId, { path: '/' });
+
+    // Login as coordinator
+    onLogin({ 
+      role: 'coordinator', 
+      username: username.trim() || `Coordinator ${Date.now()}`,
+      phoneNumber: phoneNumber.trim() || null,
+      coordCode: coordinatorCode.trim().toUpperCase(),
+      currentBar: selectedBar,
+      isCoordinator: true
+    })
+  }
+
   // Show bar selection after coordinator code validation
   if (showBarSelection && !isAdmin) {
     return (
       <div className="auth-container">
         <div className="auth-card">
-          <h1>🍺 Bar Crawl</h1>
+          <h1>{eventName}</h1>
           <p className="auth-subtitle">Select Your Bar</p>
           
           <div className="bar-selection-prompt">
@@ -155,7 +165,8 @@ function Auth({ onLogin }) {
               Which bar are you coordinating at?
             </p>
             <BarSelectionList 
-              eventCode={eventCode.trim().toUpperCase()}
+              eventCode={coordinatorCode.trim().toUpperCase()}
+              bars={bars}
               onBarSelect={handleBarSelect}
               onBack={() => {
                 setShowBarSelection(false)
@@ -197,31 +208,31 @@ function Auth({ onLogin }) {
     return (
       <div className="auth-container">
         <div className="auth-card">
-          <h1>🍺 Bar Crawl</h1>
+          <h1>Bar Crawl</h1>
           <p className="auth-subtitle">Become a Coordinator</p>
           
           <div className="coordinator-prompt">
             <p className="coordinator-instruction">
-              Enter the 4-digit coordinator code
+              Enter the 6-digit coordinator code
             </p>
             <p className="coordinator-hint">
               Coordinators manage groups at their assigned bar
             </p>
             
             <div className="form-group">
-              <label htmlFor="coordinatorCode">Coordinator Code (4 digits)</label>
+              <label htmlFor="coordinatorCode">Coordinator Code (6 digits)</label>
               <input
                 id="coordinatorCode"
                 type="text"
                 value={coordinatorCode}
                 onChange={(e) => {
                   // Only allow digits, max 4 characters
-                  const value = e.target.value.replace(/\D/g, '').slice(0, 4)
-                  setCoordinatorCode(value)
+                  // const value = e.target.value.replace(/\D/g, '').slice(0, 6)
+                  setCoordinatorCode(e.target.value.toUpperCase().slice(0, 6))
                 }}
-                placeholder="1234"
-                maxLength={4}
-                pattern="[0-9]{4}"
+                placeholder="B2C3D4"
+                maxLength={6}
+                pattern="[0-9A-Z]{6}"
               />
             </div>
 
@@ -230,7 +241,7 @@ function Auth({ onLogin }) {
                 type="button" 
                 className="coordinator-submit-btn"
                 onClick={handleCoordinatorSubmit}
-                disabled={coordinatorCode.length !== 4}
+                disabled={coordinatorCode.length !== 6}
               >
                 Submit Code
               </button>
@@ -257,7 +268,7 @@ function Auth({ onLogin }) {
     return (
       <div className="auth-container">
         <div className="auth-card">
-          <h1>🍺 Bar Crawl</h1>
+          <h1>Bar Crawl</h1>
           <p className="auth-subtitle">Select your group</p>
           {username.trim() && (
             <p className="group-username">Username: <strong>{username}</strong></p>
@@ -279,16 +290,6 @@ function Auth({ onLogin }) {
             </div>
           </div>
 
-          <div className="coordinator-option">
-            <button 
-              type="button" 
-              className="coordinator-button"
-              onClick={handleCoordinatorClick}
-            >
-              👑 Coordinator
-            </button>
-          </div>
-
           <button 
             type="button" 
             className="back-button"
@@ -301,6 +302,7 @@ function Auth({ onLogin }) {
     )
   }
 
+  // Regular screen for all participants.
   return (
     <div className="auth-container">
       <div className="auth-card">
@@ -397,13 +399,17 @@ function Auth({ onLogin }) {
           <button type="submit" className="auth-submit-btn">
             {isAdmin ? 'Login as Admin' : 'Continue'}
           </button>
-        </form>
 
-        {isAdmin && (
-          <div className="auth-hint">
-            <p>Demo credentials: <strong>admin / admin</strong></p>
-          </div>
-        )}
+          {!isAdmin && <div className="coordinator-option">
+            <button 
+              type="button" 
+              className="coordinator-button"
+              onClick={handleCoordinatorClick}
+            >
+              Coordinator
+            </button>
+          </div>}
+        </form>
       </div>
     </div>
   )

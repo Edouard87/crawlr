@@ -5,6 +5,7 @@ import { IEvent } from "../models/event";
 import { IBar } from "../models/bar";
 import GroupService from "./group_service";
 import haversineDistance from "../utils/map_distance";
+import mongoose from "mongoose";
 
 export default class StopService {
   public static createStop = async (stopData) => {
@@ -159,5 +160,13 @@ export default class StopService {
     )
     // TODO: Config? Assume 5km/h walking speed
     return (distanceMeters / 1000 / 5) * 60
+  }
+
+  public static getStopById = async (id: string) => {
+    const stop = await StopModel.findById(id)
+    if (!stop) {
+      throw new mongoose.Error.DocumentNotFoundError("Could not find stop with id " + id);
+    }
+    return stop;
   }
 }
