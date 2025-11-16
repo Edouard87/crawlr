@@ -163,7 +163,7 @@ export default class StopService {
   }
 
   public static getStopById = async (id: string) => {
-    const stop = await StopModel.findById(id)
+    const stop = await StopModel.findById(id).populate(["currentGroups", "waitingGroups", "inTransitGroups"]);
     if (!stop) {
       throw new mongoose.Error.DocumentNotFoundError("Could not find stop with id " + id);
     }

@@ -89,3 +89,11 @@ export const joinEvent = async (req: Request, res: Response) => {
     }
   }
 }
+
+/**
+ * Start the event if it exists, moving groups to in transit between bars.
+ */
+export const startEvent = async (req: Request, res: Response) => {
+  EventService.startEvent(req.params.id); 
+  res.status(200);
+}

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { EventModel, IEvent } from "../models/event";
 import GroupService from "./group_service";
 import { Document, Types } from "mongoose";
+import { StopModel } from "../models/stop" 
 
 export default class EventService {
     /**
@@ -109,10 +110,34 @@ export default class EventService {
         // DO NOT RETURN ALL DATA ABOUT THE EVENT AS THIS IS INSECURE.
         return {
             _id: event._id,
+            stops: event.stops,
             bars,
             name: event.name,
             status: event.status,
         }
+    }
+
+    public static startEvent = async (eventId: string) => {
+        const event: IEvent = await EventModel.findById(eventId)
+        if (!event) throw new Error('Event not found')
+        if (event.status === "active") throw new Error("Event has already been started")
+        if (event.groups.length == 0) throw new Error("Event must have at least one team to be started.")
+
+        const stops = await StopModel.find({ _id: { $in: event.stops }})
+        let stopIndex = 0
+
+        // iterate values, not keys
+        for (const group of event.groups) {
+            // if group is a string but your schema expects ObjectId, convert:
+            // const groupId = typeof group === 'string' ? new Types.ObjectId(group) : group
+            stops[stopIndex % stops.length].inTransitGroups.push(group)
+            stopIndex++
+        }
+
+        // persist changes
+        await Promise.all(stops.map(s => s.save()))
+        // event.status = "active"
+        event.save();
     }
 }
 
