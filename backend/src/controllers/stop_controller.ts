@@ -27,40 +27,51 @@ export const deleteStop = async (req: Request, res: Response) => {
 
 export const enqueueGroup = async (req: Request, res: Response) => {
   try {
-  const stop = await StopService.enqueueGroup(req.params.stopID, req.body.groupID);
-  res.status(201).json({
+  const stop = await StopService.enqueueGroup(req.params.stopID, req.params.groupID);
+  res.status(200).json({
     message: "Group enqueued successfully",
     id: stop._id.toString(),
     stop: stop,
   });
   } catch (err) {
-  console.error("Error enqueueing group:", err);
-  return res.status(500).json({ message: "Internal server error" });
+    console.error("Error enqueueing group:", err);
+    return res.status(500).json({ 
+      message: "Internal server error",
+      error: err.message,
+    });
   }
 };
 
 export const serveGroup = async (req: Request, res: Response) => {
   try {
-  const stop = await StopService.serveGroup(req.body.stopID);
-  res.status(201).json({
+  const stop = await StopService.serveGroup(req.params.stopID);
+  res.status(200).json({
     message: "Group served successfully",
     id: stop._id.toString(),
     stop: stop,
   });
   } catch (err) {
   console.error("Error serving group:", err);
-  return res.status(500).json({ message: "Internal server error" });
+  return res.status(500).json({ 
+    message: "Internal server error",
+    err: err.message,
+  });
   }
 };
 
 export const vacateGroup = async (req: Request, res: Response) => {
   try {
-    const stop = await StopService.vacateGroup(req.body.stopID, req.body.groupID);
+    const stop = await StopService.vacateGroup(req.params.stopID, req.params.groupID);
+    res.status(200).json({
+      message: "Group vacated successfully",
+      id: stop._id.toString(),
+      stop: stop,
+    });
   } catch (err) {
     console.error("Error vacating group:", err);
     return res.status(500).json({ 
       message: "Internal server error",
-      err: err,
+      err: err.message,
     })
   }
 }

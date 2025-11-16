@@ -20,3 +20,5 @@ function haversineDistance(
 
   return R * e;
 }
+
+export default haversineDistance;

@@ -1,10 +1,10 @@
 import { HydratedDocument, Types } from "mongoose";
 import { GroupModel } from "../models/group";
 import { StopModel, IStop } from "../models/stop";
-import { IEvent } from "src/models/event";
-import { IBar } from "src/models/bar";
-import { start } from "node:repl";
+import { IEvent } from "../models/event";
+import { IBar } from "../models/bar";
 import GroupService from "./group_service";
+import haversineDistance from "../utils/map_distance";
 
 export default class StopService {
   public static createStop = async (stopData) => {
@@ -18,9 +18,7 @@ export default class StopService {
   };
 
   public static enqueueGroup = async (stopID: string, groupID: string) => {
-    const stop = await StopModel.findById(stopID)
-      .populate("currentGroups")
-      .populate("waitingGroups");
+    const stop = await StopModel.findById(stopID);
     if (stop === null) {
       throw new Error("stop not found");
     }
@@ -31,7 +29,7 @@ export default class StopService {
     }
 
     // TODO: use sessions, mongo replica set?
-    if (stop.currentGroups.length === 0) {
+    if (stop.currentGroups.length === 0 && stop.waitingGroups.length === 0) {
       stop.currentGroups.push(new Types.ObjectId(groupID));
       group.status = "bar";
       group.stop = new Types.ObjectId(stopID);
@@ -71,18 +69,16 @@ export default class StopService {
   }
 
   public static vacateGroup = async (stopID: string, groupID: string) => {
-    const stop = await StopModel.findById(stopID)
-      .populate("currentGroups")
-      .populate("waitingGroups");
+    const stop = await StopModel.findById(stopID);
     if (stop === null) {
       throw new Error("stop not found");
     }
 
-    const groupIDs = stop.waitingGroups;
+    const groupIDs = stop.currentGroups;
     if (!groupIDs.includes(new Types.ObjectId(groupID))) {
       throw new Error("group not being served");
     }
-    const updatedServingIDs = groupIDs.filter(x => x !== new Types.ObjectId(groupID));
+    const updatedServingIDs = groupIDs.filter(x => String(x) !== groupID);
     stop.currentGroups = updatedServingIDs;
     StopService.findNextStop(groupID).catch(
       (err: Error) => {
