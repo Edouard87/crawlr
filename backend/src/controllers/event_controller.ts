@@ -60,19 +60,31 @@ export const getEventById = async (req: Request, res: Response) => {
  */
 export const updateEvent = async (req: Request, res: Response) => {
   try {
-  const event = await EventService.updateEvent(req.params.id, req.body)
-  
-  if (!event) {
-    res.status(404).json({ message: "Event not found" });
-    return;
-  }
-  
-  res.json(event);
+    let stops = req.body.stops;
+    if (typeof req.body.stops === 'string') {
+      try {
+        stops = JSON.parse(req.body.stops);
+      } catch {
+        return res.status(400).json({ 
+          message: 'Invalid stops format',
+          stops: req.body.stops,
+        });
+      }
+    }
+
+    const event = await EventService.updateEvent(req.params.id, stops)
+    
+    if (!event) {
+      res.status(404).json({ message: "Event not found" });
+      return;
+    }
+    
+    res.json(event);
   } catch (error: any) {
-  res.status(500).json({
-    message: "Failed to update event",
-    error: error.message,
-  });
+    res.status(500).json({
+      message: "Failed to update event",
+      error: error.message,
+    });
   }
 };
 

@@ -55,7 +55,7 @@ export default class EventService {
     /**
      * Update event by ID
      */
-    public static updateEvent = async (id: string, newContent: [string]) => {
+    public static updateEvent = async (id: string, newContent) => {
         const event = await EventModel.findByIdAndUpdate(
             id,
             {
