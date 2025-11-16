@@ -29,7 +29,8 @@ function ParticipantView({ user, apiKey, onLogout }) {
 
   function loadStop() {
     axios({
-        url: `${API_URL}/group/stop`
+        url: `${API_URL}/group/stop`,
+        body: user.groupdID || null,
       }).then(res => {
         setStop(res.data.stop)
       }).catch(err => {

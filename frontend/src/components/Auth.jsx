@@ -84,13 +84,13 @@ function Auth({ onLogin }) {
     }
   }
 
-  const handleGroupSelect = (groupNumber) => {
-    setSelectedGroup(groupNumber)
+  const handleGroupSelect = (groupNumber, groupID) => {
     onLogin({ 
       role: 'participant', 
       username: username.trim() || `User ${Date.now()}`,
       phoneNumber: phoneNumber.trim() || null,
       group: groupNumber,
+      groupID: groupID,
       eventCode: eventCode.trim().toUpperCase(),
       isCoordinator: false
     })
@@ -282,7 +282,7 @@ function Auth({ onLogin }) {
                   key={_id}
                   type="button"
                   className={`group-button ${selectedGroup === _id ? 'selected' : ''}`}
-                  onClick={() => handleGroupSelect(number)}
+                  onClick={() => handleGroupSelect(number, _id)}
                 >
                   {number}
                 </button>
