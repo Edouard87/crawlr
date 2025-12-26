@@ -1,0 +1,1 @@
+curl -X GET "http://localhost:3000/api/bar/6918ebf527dded05a456bec2"

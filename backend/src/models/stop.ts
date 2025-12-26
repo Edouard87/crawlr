@@ -22,7 +22,7 @@ const StopSchema = new mongoose.Schema(
     required: true,
   },
 
-  currentGroup: {
+  currentGroups: {
     type: [
     {
       type: mongoose.Schema.Types.ObjectId,

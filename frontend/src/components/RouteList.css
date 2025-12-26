@@ -1,0 +1,98 @@
+.route-list {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.route-header {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.route-header h2 {
+  margin-bottom: 12px;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.total-time {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.time-label {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.time-value {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.route-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.route-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.route-step:hover {
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.step-number {
+  min-width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.step-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.step-content strong {
+  color: #333;
+  font-size: 1rem;
+}
+
+.step-address {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.step-arrow {
+  color: #667eea;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0 auto;
+}
+

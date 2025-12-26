@@ -4,6 +4,10 @@ import {
   updateEvent,
   getEventById,
   deleteEvent,
+  joinEvent,
+  getAllEvents, 
+  getEventByCoordCode,
+  startEvent
   //startEvent,
 } from "../controllers/event_controller";
 import { authMiddleware } from "../middleware/auth_middleware";
@@ -12,9 +16,17 @@ const eventRouter = express.Router();
 
 eventRouter.post("/", authMiddleware, createEvent);
 eventRouter.put("/:id", authMiddleware, updateEvent);
-eventRouter.get("/:id", getEventById);
+eventRouter.get("/:id", authMiddleware, getEventById);
 eventRouter.delete("/:id", authMiddleware, deleteEvent);
+eventRouter.get("/", authMiddleware, getAllEvents);
 
-//eventRouter.post("/start/:id", startEvent);
+eventRouter.post("/start/:id", startEvent)
+
+// TODO: This method should probably be protected.
+eventRouter.get("/code/:coordCode", getEventByCoordCode);
+
+eventRouter.post("/join/:eventCode", joinEvent);
+
+// TODO: eventRouter.post("/start/:id", startEvent);
 
 export default eventRouter;

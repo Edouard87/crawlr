@@ -14,10 +14,10 @@ export const createBar = async (req: Request, res: Response) => {
     bar: savedBar,
   });
   } catch (error: any) {
-  res.status(500).json({
-    message: "Failed to create bar",
-    error: error.message,
-  });
+    res.status(500).json({
+      message: "Failed to create bar",
+      error: error.message,
+    });
   }
 };
 
@@ -41,7 +41,7 @@ export const getAllBars = async (req: Request, res: Response) => {
  */
 export const getBarById = async (req: Request, res: Response) => {
   try {
-  const bar = await BarService.getBarById(req.params.stopID);
+  const bar = await BarService.getBarById(req.params.id);
   if (!bar) {
     return res.status(404).json({ message: "Bar not found" });
   }

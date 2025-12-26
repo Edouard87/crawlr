@@ -4,6 +4,7 @@ import { UserModel, IUser } from '../models/user';
 import { HydratedDocument } from 'mongoose';
 
 export default class AuthService {
+  // Generated JWT token with user id and username.
   public static async login(email: string, password: string) {
     // Validate input data
     try {
