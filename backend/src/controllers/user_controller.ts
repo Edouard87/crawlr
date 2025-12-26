@@ -4,33 +4,23 @@ import bcrypt from 'bcrypt';
 
 export const createUser = async (req: Request, res: Response) => {
   try {
-  const { email, phoneNumber, password, name } = req.body;
+    const { email, phoneNumber, password, name } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await UserModel.create({
+      email,
+      phoneNumber,
+      password: hashedPassword,
+      name,
+      eventsCreated: [],
+    });
 
-  if (!email || !phoneNumber || !password || !name) {
-    return res.status(400).json({ message: "Missing required fields" });
-  }
+    const userObj = user.toObject();
+    delete (userObj as any).password;
 
-  const existing = await UserModel.findOne({ email });
-  if (existing) {
-    return res.status(409).json({ message: "Email already in use" });
-  }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  const user = await UserModel.create({
-    email,
-    phoneNumber,
-    password: hashedPassword,
-    name,
-    eventsCreated: [],
-  });
-
-  const userObj = user.toObject();
-  delete (userObj as any).hashedPassword;
-
-  return res.status(201).json(userObj);
+    return res.status(201).json(userObj);
   } catch (err) {
   console.error("Error creating user:", err);
+  console.log(err);
   return res.status(500).json({ message: "Internal server error" });
   }
 };
